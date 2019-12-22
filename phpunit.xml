@@ -1,0 +1,14 @@
+<phpunit
+		colors="true"
+		stopOnFailure="true">
+	<testsuites>
+		<testsuite name="php-go PHP Test Suite">
+			<directory suffix="Test.php">tests</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist>
+			<directory>src</directory>
+		</whitelist>
+	</filter>
+</phpunit>
