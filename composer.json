@@ -1,0 +1,26 @@
+{
+    "name": "budougumi0617/php-go",
+    "require": {
+        "php": ">=7.4.1"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "3.x",
+        "phpunit/phpunit": "^7.5",
+        "phpstan/phpstan": "^0.12"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.1"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
