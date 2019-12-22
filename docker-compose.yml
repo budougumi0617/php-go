@@ -1,0 +1,7 @@
+version: '3'
+services:
+  php-cli:
+    build: ./docker
+    command: php -v
+    volumes:
+      - .:/app
