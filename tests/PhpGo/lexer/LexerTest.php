@@ -17,8 +17,9 @@ use PHPUnit\Framework\TestCase;
 
 final class LexerTest extends TestCase
 {
-    public function test_nextToken(): void{
-        $input= "=+(){},;";
+    public function test_nextToken(): void
+    {
+        $input = "=+(){},;";
 
         $expectedTokens = [
             new Token(new AssignType(), "="),
@@ -33,10 +34,10 @@ final class LexerTest extends TestCase
         ];
 
         $lexer = new Lexer($input);
-        foreach ($expectedTokens as $expectedToken){
+        foreach ($expectedTokens as $expectedToken) {
             $token = $lexer->nextToken();
-            self::assertSame($expectedToken->type, $token->type);
-            self::assertSame($expectedToken->literal, $token->literal);
+            self::assertEquals($expectedToken->type, $token->type);
+            self::assertEquals($expectedToken->literal, $token->literal);
         }
-}
+    }
 }
