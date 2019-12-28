@@ -2,6 +2,7 @@
 
 namespace PhpGo\Lexer;
 
+use PhpGo\Token\IllegalType;
 use PhpGo\Token\Token;
 
 class Lexer
@@ -15,6 +16,6 @@ class Lexer
 
     public function nextToken():Token
     {
-        return new Token("","");
+        return new Token(null,"");
     }
 }

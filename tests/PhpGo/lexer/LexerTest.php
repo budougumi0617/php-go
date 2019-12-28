@@ -1,10 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Tests\PhpGo;
+namespace Tests\PhpGo\Lexer;
 
 use PhpGo\Lexer\Lexer;
+use PhpGo\Token\AddType;
+use PhpGo\Token\AssignType;
+use PhpGo\Token\CommaType;
+use PhpGo\Token\EofType;
+use PhpGo\Token\LbraceType;
+use PhpGo\Token\LparenType;
+use PhpGo\Token\RbraceType;
+use PhpGo\Token\RparenType;
+use PhpGo\Token\SemicolonType;
 use PhpGo\Token\Token;
-use PhpGo\Token\TokenType;
 use PHPUnit\Framework\TestCase;
 
 final class LexerTest extends TestCase
@@ -13,15 +21,15 @@ final class LexerTest extends TestCase
         $input= "=+(){},;";
 
         $expectedTokens = [
-            new Token(TokenType::T_ASSIGN, "="),
-            new Token(TokenType::T_ADD, "+"),
-            new Token(TokenType::T_LPAREN, "("),
-            new Token(TokenType::T_RPAREN, ")"),
-            new Token(TokenType::T_LBRACE, "{"),
-            new Token(TokenType::T_RBRACE, "}"),
-            new Token(TokenType::T_COMMA, ","),
-            new Token(TokenType::T_SEMICOLON, ";"),
-            new Token(TokenType::T_EOF, ""),
+            new Token(new AssignType(), "="),
+            new Token(new AddType(), "+"),
+            new Token(new LparenType(), "("),
+            new Token(new RparenType(), ")"),
+            new Token(new LbraceType(), "{"),
+            new Token(new RbraceType(), "}"),
+            new Token(new CommaType(), ","),
+            new Token(new SemicolonType(), ";"),
+            new Token(new EofType(), ""),
         ];
 
         $lexer = new Lexer($input);

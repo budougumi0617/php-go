@@ -4,10 +4,10 @@ namespace PhpGo\Token;
 
 class Token
 {
-    public string $type;
+    public TokenType $type;
     public string $literal;
 
-    public function __construct(string $type, string $literal)
+    public function __construct(TokenType $type, string $literal)
     {
         $this->type = $type;
         $this->literal = $literal;

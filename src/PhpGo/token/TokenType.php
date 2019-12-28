@@ -8,12 +8,13 @@ namespace PhpGo\Token;
  *
  * go/token/token.go
  */
-final class TokenType
+abstract class TokenType
 {
-    public string $type;
-    public function __construct(string $type)
+    protected string $type;
+
+    public function getType(): string
     {
-        $this->type = type;
+        return $this->type;
     }
 
     // Special tokens
@@ -24,7 +25,7 @@ final class TokenType
     // Identifiers and basic type literals
     // (these tokens stand for classes of literals)
     // literal_beg
-    public const T_IDENT = "INDENT"; // main
+    public const T_IDENT = "IDENT"; // main
     public const T_INT = "INT"; // 12345
 
     public const T_FLOAT = "FLOAT"; // 123.45
