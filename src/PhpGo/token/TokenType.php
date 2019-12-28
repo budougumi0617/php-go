@@ -34,7 +34,7 @@ abstract class TokenType
     public const T_STRING = "STRING"; // "abc"
     // literal_end
 
-    //	operator_beg
+    // operator_beg
     public const T_ASSIGN = "ASSIGN"; // =
     public const T_ADD = "ADD"; // +
     public const T_SUB = "SUB"; // -
@@ -51,4 +51,3 @@ abstract class TokenType
     public const T_COLON = "COLON";  // :
     // operator_end
 }
-

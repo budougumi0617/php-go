@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
+namespace PhpGo\Token;
 
-namespace PhpGo\token;
-
-
-final class IndentTypes extends TokenType
+final class IndentType extends TokenType
 {
     public function __construct()
     {

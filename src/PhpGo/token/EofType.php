@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-
 namespace PhpGo\Token;
-
 
 final class EofType extends TokenType
 {
