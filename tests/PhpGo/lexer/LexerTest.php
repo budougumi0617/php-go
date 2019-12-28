@@ -1,9 +1,8 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Tests\PhpGo;
 
-use PhpGo\Lexer;
+use PhpGo\Lexer\Lexer;
 use PHPUnit\Framework\TestCase;
 
 class LexerTest extends TestCase
