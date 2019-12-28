@@ -2,13 +2,19 @@
 
 namespace PhpGo\Lexer;
 
+use PhpGo\Token\Token;
+
 class Lexer
 {
-    /**
-     * @return string sample message.
-     */
-    public function hello(): string
+    private string $codes;
+
+    public function __construct(string $codes)
     {
-        return 'Hello';
+        $this->codes = $codes;
+    }
+
+    public function nextToken():Token
+    {
+        return new Token("","");
     }
 }

@@ -10,6 +10,12 @@ namespace PhpGo\Token;
  */
 final class TokenType
 {
+    public string $type;
+    public function __construct(string $type)
+    {
+        $this->type = type;
+    }
+
     // Special tokens
     public const T_ILLEGAL = "ILLEGAL";
     public const T_EOF = "EOF";
@@ -31,5 +37,17 @@ final class TokenType
     public const T_ASSIGN = "ASSIGN"; // =
     public const T_ADD = "ADD"; // +
     public const T_SUB = "SUB"; // -
+    public const T_LPAREN = "LPAREN";// (
+    public const T_LBRACK = "LBRACK";// [
+    public const T_LBRACE = "LBRACE";// {
+    public const T_COMMA = "COMMA";// ,
+    public const T_PERIOD = "PERIOD";// .
+
+    public const T_RPAREN = "RPAREN";   // )
+    public const T_RBRACK = "RBRACK";  // ]
+    public const T_RBRACE = "RBRACE";  // }
+    public const T_SEMICOLON = "SEMICOLON";// ;
+    public const T_COLON = "COLON";  // :
+    // operator_end
 }
 
