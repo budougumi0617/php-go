@@ -87,7 +87,7 @@ EOT;
             new Token(new CommaType(), ""),
             new Token(new IdentType(), "y"),
             new Token(new IdentType(), "int"),
-            new Token(new RparenType(), ")"),
+            new Token(new RparenType(), ""),
             new Token(new IdentType(), "int"),
             new Token(new LbraceType(), ""),
             new Token(new ReturnType(), "return"),
