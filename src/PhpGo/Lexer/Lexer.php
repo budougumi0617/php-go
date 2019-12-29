@@ -4,7 +4,9 @@ namespace PhpGo\Lexer;
 
 use PhpGo\Token\AddType;
 use PhpGo\Token\AssignType;
+use PhpGo\Token\ColonType;
 use PhpGo\Token\CommaType;
+use PhpGo\Token\DefineType;
 use PhpGo\Token\EofType;
 use PhpGo\Token\IllegalType;
 use PhpGo\Token\IntType;
@@ -14,6 +16,7 @@ use PhpGo\Token\RbraceType;
 use PhpGo\Token\RparenType;
 use PhpGo\Token\SemicolonType;
 use PhpGo\Token\Token;
+use PhpGo\Token\TokenType;
 use function PhpGo\Token\lookupIndent;
 
 class Lexer
@@ -100,6 +103,23 @@ class Lexer
         return new Token($type, $literal);
     }
 
+    /**
+     * go/token/Token.switch2
+     *
+     * @param Token $tok0
+     * @param Token $tok1
+     * @return Token
+     */
+    private function switch2(Token $tok0, Token $tok1): Token
+    {
+        $this->readCharacter();
+        if ($this->ch == "=") {
+            $this->readCharacter();
+            return $tok1;
+        }
+        return $tok0;
+    }
+
     public function nextToken(): Token
     {
         $this->skipWhitespace();
@@ -116,6 +136,11 @@ class Lexer
             case "=":
                 $token = new Token(new AssignType(), "");
                 break;
+            case ":":
+                $tok0 = new Token(new ColonType(), "");
+                $tok1 = new Token(new DefineType(), "");
+                // not need readCharacter.
+                return $this->switch2($tok0, $tok1);
             case ";":
                 $token = new Token(new SemicolonType(), $this->ch);
                 break;
@@ -141,6 +166,9 @@ class Lexer
                 $token = new Token(new RbraceType(), "");
                 break;
             case $this::$null:
+                if ($this->insertSemi) {
+                    return new Token(new SemicolonType(), "\n");
+                }
                 $token = new Token(new EofType(), "");
                 break;
             default:

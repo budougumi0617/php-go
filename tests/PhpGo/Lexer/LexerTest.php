@@ -29,13 +29,13 @@ final class LexerTest extends TestCase
         $input = "=+(){},;";
 
         $expectedTokens = [
-            new Token(new AssignType(), "="),
-            new Token(new AddType(), "+"),
-            new Token(new LparenType(), "("),
-            new Token(new RparenType(), ")"),
-            new Token(new LbraceType(), "{"),
-            new Token(new RbraceType(), "}"),
-            new Token(new CommaType(), ","),
+            new Token(new AssignType(), ""),
+            new Token(new AddType(), ""),
+            new Token(new LparenType(), ""),
+            new Token(new RparenType(), ""),
+            new Token(new LbraceType(), ""),
+            new Token(new RbraceType(), ""),
+            new Token(new CommaType(), ""),
             new Token(new SemicolonType(), ";"),
             new Token(new EofType(), ""),
         ];
