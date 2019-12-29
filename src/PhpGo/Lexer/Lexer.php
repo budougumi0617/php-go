@@ -6,8 +6,8 @@ use PhpGo\Token\AddType;
 use PhpGo\Token\AssignType;
 use PhpGo\Token\CommaType;
 use PhpGo\Token\EofType;
-use PhpGo\Token\IdentType;
 use PhpGo\Token\IllegalType;
+use PhpGo\Token\IntType;
 use PhpGo\Token\LbraceType;
 use PhpGo\Token\LparenType;
 use PhpGo\Token\RbraceType;
@@ -73,6 +73,33 @@ class Lexer
         }
     }
 
+    /**
+     * go/token/token.isDecimal
+     * @param string $ch
+     * @return bool
+     */
+    private function isDecimal(string $ch): bool
+    {
+        return "0" <= $ch && $ch <= "9";
+    }
+
+    /**
+     * FIXME: support only Integer.
+     * go/token/token.scanNumber
+     * @return Token
+     */
+    private function readNumber(): Token
+    {
+        $type = new IntType();
+        $pos = $this->position;
+        while ($this->isDecimal($this->ch)) {
+            $this->readCharacter();
+        }
+        $literal = substr($this->codes, $pos, $this->position - $pos);
+        var_dump("readNumber: current char '" . $this->ch . "'");
+        return new Token($type, $literal);
+    }
+
     public function nextToken(): Token
     {
         $this->skipWhitespace();
@@ -104,7 +131,7 @@ class Lexer
                 break;
             case "+":
                 // TODO: switch +, +=, or ++.
-                $token = new Token(new AddType(), $this->ch);
+                $token = new Token(new AddType(), "");
                 break;
             case "{":
                 $token = new Token(new LbraceType(), "");
@@ -123,6 +150,11 @@ class Lexer
                     $this->insertSemi = true;
                     // not need to call readCharacter.
                     return new Token($type, $literal);
+                } elseif ($this->isDecimal($this->ch)) {
+                    // FIXME: 本当の条件は isDecimal(ch) || ch == '.' && isDecimal(rune(s.peek()))
+                    $this->insertSemi = true;
+                    // not need to call readCharacter(maybe...).
+                    return $this->readNumber();
                 } else {
                     $insertSemi = $this->insertSemi;
                     $token = new Token(new IllegalType(), $this->ch);
