@@ -104,6 +104,21 @@ class Lexer
     }
 
     /**
+     * Returns the byte following the most recently read character without advancing the scanner.
+     *
+     * go/scanner/Scanner.peek
+     *
+     * @return string next character or this::null if reached EOF.
+     */
+    private function peek(): string
+    {
+        if ($this->readPosition >= strlen($this->codes)) {
+            return $this::$null;
+        }
+        return $this->codes[$this->readPosition];
+    }
+
+    /**
      * go/token/Token.switch2
      *
      * @param Token $tok0
@@ -112,8 +127,7 @@ class Lexer
      */
     private function switch2(Token $tok0, Token $tok1): Token
     {
-        $this->readCharacter();
-        if ($this->ch == "=") {
+        if ($this->peek() == "=") {
             $this->readCharacter();
             return $tok1;
         }
@@ -139,8 +153,8 @@ class Lexer
             case ":":
                 $tok0 = new Token(new ColonType(), "");
                 $tok1 = new Token(new DefineType(), "");
-                // not need readCharacter.
-                return $this->switch2($tok0, $tok1);
+                $token = $this->switch2($tok0, $tok1);
+                break;
             case ";":
                 $token = new Token(new SemicolonType(), $this->ch);
                 break;
