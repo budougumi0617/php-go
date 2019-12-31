@@ -37,6 +37,7 @@ function lookupIndent(string $ident): TokenType
         "var" => new VarType(),
         "func" => new FuncType(),
         "return" => new ReturnType(),
+        "int" => new IntType(),
     ];
     $type = $keywords[$ident];
     if ($type != null) {
