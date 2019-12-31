@@ -17,6 +17,11 @@ class Token
     {
         return $this->type;
     }
+
+    public function string(): string
+    {
+        return "type: {$this->type->getType()} literal: \"{$this->literal}\"";
+    }
 }
 
 /**

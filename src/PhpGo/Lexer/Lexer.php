@@ -99,7 +99,6 @@ class Lexer
             $this->readCharacter();
         }
         $literal = substr($this->codes, $pos, $this->position - $pos);
-        var_dump("readNumber: current char '" . $this->ch . "'");
         return new Token($type, $literal);
     }
 
@@ -137,6 +136,9 @@ class Lexer
     public function nextToken(): Token
     {
         $this->skipWhitespace();
+        if ($this->position >= strlen($this->codes)) {
+            return new Token(new EofType(), $this::$null);
+        }
 
         $token = null;
         $insertSemi = false;

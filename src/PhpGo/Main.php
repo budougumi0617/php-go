@@ -2,14 +2,19 @@
 
 namespace PhpGo;
 
-require_once "vendor/autoload.php";
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/Token/Token.php';
 
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
 
-$input = 'var foo = 5';
+$input = $argv[1];
 $lexer = new Lexer($input);
 
-for ($tok = $lexer->nextToken(); $tok->type() == EofType::class; $tok = $lexer->nextToken()) {
-    var_dump($tok);
+while (true) {
+    $tok = $lexer->nextToken();
+    echo $tok->string() . PHP_EOL;
+    if ($tok->type() instanceof EofType) {
+        break;
+    }
 }
