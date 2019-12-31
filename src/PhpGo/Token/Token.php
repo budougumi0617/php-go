@@ -12,10 +12,17 @@ class Token
         $this->type = $type;
         $this->literal = $literal;
     }
+
+    public function type(): TokenType
+    {
+        return $this->type;
+    }
 }
 
 /**
  * go/token/Token.Lookup
+ * @param string $ident
+ * @return TokenType
  */
 function lookupIndent(string $ident): TokenType
 {
