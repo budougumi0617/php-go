@@ -31,18 +31,27 @@ class Token
      */
     public static function lookupIndent(string $ident): TokenType
     {
-        $keywords = null ?? [
+        $keywords = self::keymap();
+
+        $type = $keywords[$ident];
+        if ($type !== null) {
+            return $type;
+        }
+        return new IdentType();
+    }
+
+    /**
+     * @return array support token type by Lexer.
+     */
+    private static function keymap(): array
+    {
+        self::$keywords = self::$keywords ?? [
                 "package" => new PackageType(),
                 "var" => new VarType(),
                 "func" => new FuncType(),
                 "return" => new ReturnType(),
                 "int" => new IntType(),
             ];
-
-        $type = $keywords[$ident];
-        if ($type != null) {
-            return $type;
-        }
-        return new IdentType();
+        return self::$keywords;
     }
 }
