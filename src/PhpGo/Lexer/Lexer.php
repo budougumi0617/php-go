@@ -17,7 +17,6 @@ use PhpGo\Token\RparenType;
 use PhpGo\Token\SemicolonType;
 use PhpGo\Token\Token;
 use PhpGo\Token\TokenType;
-use function PhpGo\Token\lookupIndent;
 
 class Lexer
 {
@@ -190,7 +189,7 @@ class Lexer
             default:
                 if ($this->isLetter($this->ch)) {
                     $literal = $this->readIdentifier();
-                    $type = lookupIndent($literal);
+                    $type = Token::lookupIndent($literal);
                     $this->insertSemi = true;
                     // not need to call readCharacter.
                     return new Token($type, $literal);
