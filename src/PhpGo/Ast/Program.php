@@ -2,6 +2,13 @@
 
 namespace PhpGo\Ast;
 
+/**
+ * Class Program
+ * @package PhpGo\Ast
+ *
+ * TODO: Implement ArrayAccess for strict type declaration.
+ * https://www.php.net/manual/ja/class.arrayaccess.php
+ */
 final class Program implements NodeInterface
 {
     public array $statements; // StatementInterface array.
