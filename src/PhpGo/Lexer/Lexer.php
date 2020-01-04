@@ -179,6 +179,7 @@ class Lexer
                 break;
             case $this::$null:
                 if ($this->insertSemi) {
+                    $this->insertSemi = false; // EOF consumed
                     return new Token(new SemicolonType(), "\n");
                 }
                 $token = new Token(new EofType(), "");

@@ -17,7 +17,7 @@ if (count($argv) > 1) {
     while (true) {
         $tok = $lexer->nextToken();
         echo $tok->string() . PHP_EOL;
-        if ($tok->type instanceof EofType || $tok->type instanceof SemicolonType) {
+        if ($tok->type instanceof EofType) {
             break;
         }
     }

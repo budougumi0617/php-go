@@ -43,7 +43,7 @@ final class LexerTest extends TestCase
 
     public function providerForNextToken()
     {
-        // parse result https://play.golang.org/p/ETbfQY_jViL
+        // parse result https://play.golang.org/p/nvk5BXnBHZd
         $complexInput = <<<EOT
 package main
 
@@ -123,13 +123,15 @@ EOT;
                 new Token(new SemicolonType(), "\n"),
                 new Token(new RbraceType(), ""),
                 new Token(new SemicolonType(), "\n"),
+                new Token(new EofType(), ""),
             ]],
+            // https://play.golang.org/p/5WkX9KibpZf
             'string' => ['=+()"string_literal"{},;', [
                 new Token(new AssignType(), ""),
                 new Token(new AddType(), ""),
                 new Token(new LparenType(), ""),
                 new Token(new RparenType(), ""),
-                new Token(new StringType(), "string_literal"),
+                new Token(new StringType(), "\"string_literal\""),
                 new Token(new LbraceType(), ""),
                 new Token(new RbraceType(), ""),
                 new Token(new CommaType(), ""),
