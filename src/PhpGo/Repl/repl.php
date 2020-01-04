@@ -4,6 +4,7 @@ namespace Repl;
 
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
+use PhpGo\Token\SemicolonType;
 
 const PROMPT = '>> ';
 
@@ -17,7 +18,7 @@ function Start(): void
         while (true) {
             $tok = $lexer->nextToken();
             echo $tok->string() . PHP_EOL;
-            if ($tok->type() instanceof EofType) {
+            if ($tok->type() instanceof EofType || $tok->type instanceof SemicolonType) {
                 break;
             }
         }

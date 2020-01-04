@@ -8,6 +8,7 @@ require_once __DIR__ . '/Repl/repl.php';
 
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
+use PhpGo\Token\SemicolonType;
 use function Repl\Start;
 
 if (count($argv) > 1) {
@@ -16,7 +17,7 @@ if (count($argv) > 1) {
     while (true) {
         $tok = $lexer->nextToken();
         echo $tok->string() . PHP_EOL;
-        if ($tok->type() instanceof EofType) {
+        if ($tok->type instanceof EofType || $tok->type instanceof SemicolonType) {
             break;
         }
     }

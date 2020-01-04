@@ -49,8 +49,7 @@ class Token
                 "package" => new PackageType(),
                 "var" => new VarType(),
                 "func" => new FuncType(),
-                "return" => new ReturnType(),
-                "int" => new IntType(),
+                "return" => new ReturnType()
             ];
         return self::$keywords;
     }

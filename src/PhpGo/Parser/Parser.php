@@ -4,7 +4,9 @@ namespace PhpGo\Parser;
 
 use PhpGo\Ast\Program;
 use PhpGo\Lexer\Lexer;
+use PhpGo\Token\EofType;
 use PhpGo\Token\Token;
+use PhpGo\Token\TokenType;
 
 /**
  * Class Parser
@@ -23,7 +25,7 @@ final class Parser
     {
         $this->lexer = $l;
         $this->peekToken = null;
-        $this->curToken= null;
+        $this->curToken = null;
         // initialize $curToken, $peekToken.
         $this->nextToken();
         $this->nextToken();
@@ -37,6 +39,12 @@ final class Parser
 
     public function parseProgram(): Program
     {
-        return new Program([]);
+        $statements = [];
+        while (!$this->curToken->type instanceof EofType) {
+            var_dump($this->curToken);
+            $this->nextToken();
+        }
+
+        return new Program($statements);
     }
 }

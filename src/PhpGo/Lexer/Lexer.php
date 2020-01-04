@@ -135,9 +135,6 @@ class Lexer
     public function nextToken(): Token
     {
         $this->skipWhitespace();
-        if ($this->position >= strlen($this->codes)) {
-            return new Token(new EofType(), $this::$null);
-        }
 
         $token = null;
         $insertSemi = false;
