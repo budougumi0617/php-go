@@ -18,6 +18,7 @@ use PhpGo\Token\RbraceType;
 use PhpGo\Token\ReturnType;
 use PhpGo\Token\RparenType;
 use PhpGo\Token\SemicolonType;
+use PhpGo\Token\StringType;
 use PhpGo\Token\Token;
 use PhpGo\Token\VarType;
 use PHPUnit\Framework\TestCase;
@@ -35,8 +36,8 @@ final class LexerTest extends TestCase
         $lexer = new Lexer($input);
         foreach ($expectedTokens as $expectedToken) {
             $token = $lexer->nextToken();
-            self::assertEquals($expectedToken->type, $token->type);
-            self::assertEquals($expectedToken->literal, $token->literal);
+            self::assertEquals($expectedToken->type, $token->type, "expect {$expectedToken->type->getType()}, bad {$token->type->getType()}");
+            self::assertEquals($expectedToken->literal, $token->literal, "{$expectedToken->type->getType()} failed");
         }
     }
 
@@ -59,7 +60,7 @@ func main(){
 }
 EOT;
         return [
-            'simple' => ["=+(){},;", [
+            'simple' => ['=+(){},;', [
                 new Token(new AssignType(), ""),
                 new Token(new AddType(), ""),
                 new Token(new LparenType(), ""),
@@ -122,6 +123,18 @@ EOT;
                 new Token(new SemicolonType(), "\n"),
                 new Token(new RbraceType(), ""),
                 new Token(new SemicolonType(), "\n"),
+            ]],
+            'string' => ['=+()"string_literal"{},;', [
+                new Token(new AssignType(), ""),
+                new Token(new AddType(), ""),
+                new Token(new LparenType(), ""),
+                new Token(new RparenType(), ""),
+                new Token(new StringType(), "string_literal"),
+                new Token(new LbraceType(), ""),
+                new Token(new RbraceType(), ""),
+                new Token(new CommaType(), ""),
+                new Token(new SemicolonType(), ";"),
+                new Token(new EofType(), ""),
             ]],
         ];
     }

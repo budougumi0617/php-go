@@ -4,13 +4,12 @@ namespace Tests\PhpGo\Parser;
 
 use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\ImportSpec;
-use PhpGo\Ast\SpecInterface;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Parser\Parser;
 use PhpGo\Token\TokenType;
 use PHPUnit\Framework\TestCase;
 
-class ParserTest extends TestCase
+final class ParserTest extends TestCase
 {
 
     public function test_parseProgram_GenDecl_ImportSpec(): void
