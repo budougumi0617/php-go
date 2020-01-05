@@ -41,16 +41,16 @@ abstract class TokenType
 
     public const T_DEFINE = "DEFINE";  // :=
 
-    public const T_LPAREN = "LPAREN";// (
-    public const T_LBRACK = "LBRACK";// [
-    public const T_LBRACE = "LBRACE";// {
-    public const T_COMMA = "COMMA";// ,
-    public const T_PERIOD = "PERIOD";// .
+    public const T_LPAREN = "LPAREN"; // ( Left parenthesis.
+    public const T_LBRACK = "LBRACK"; // [ Left bracket.
+    public const T_LBRACE = "LBRACE"; // { Left brace.
+    public const T_COMMA = "COMMA";   // ,
+    public const T_PERIOD = "PERIOD"; // .
 
-    public const T_RPAREN = "RPAREN";   // )
-    public const T_RBRACK = "RBRACK";  // ]
-    public const T_RBRACE = "RBRACE";  // }
-    public const T_SEMICOLON = "SEMICOLON";// ;
+    public const T_RPAREN = "RPAREN"; // ) Right parenthesis.
+    public const T_RBRACK = "RBRACK"; // ] Right bracket.
+    public const T_RBRACE = "RBRACE"; // } Right brace.
+    public const T_SEMICOLON = "SEMICOLON"; // ;
     public const T_COLON = "COLON";  // :
     // operator_end
 
