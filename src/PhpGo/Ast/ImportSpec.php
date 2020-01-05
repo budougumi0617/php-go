@@ -19,6 +19,11 @@ final class ImportSpec implements SpecInterface
     public BasicLit $path; // import path
     public int $endPos; // end of spec (overrides Path.Pos if nonzero)
 
+    /**
+     * ImportSpec constructor.
+     * @param Token $tok import path.
+     * @param Ident|null $name local package name if setting.
+     */
     public function __construct(Token $tok, Ident $name = null)
     {
         $this->path = new BasicLit($tok);
