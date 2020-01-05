@@ -47,9 +47,10 @@ class Token
     {
         self::$keywords = self::$keywords ?? [
                 "package" => new PackageType(),
+                "import" => new ImportType(),
                 "var" => new VarType(),
                 "func" => new FuncType(),
-                "return" => new ReturnType()
+                "return" => new ReturnType(),
             ];
         return self::$keywords;
     }
