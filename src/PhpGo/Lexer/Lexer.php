@@ -15,6 +15,7 @@ use PhpGo\Token\LparenType;
 use PhpGo\Token\RbraceType;
 use PhpGo\Token\RparenType;
 use PhpGo\Token\SemicolonType;
+use PhpGo\Token\StringType;
 use PhpGo\Token\Token;
 use PhpGo\Token\TokenType;
 
@@ -38,6 +39,10 @@ class Lexer
         $this->readCharacter();
     }
 
+    /**
+     * TODO: real implementation.
+     * go/scanner/Scanner.next.
+     */
     private function readCharacter(): void
     {
         if ($this->readPosition >= strlen($this->codes)) {
@@ -117,6 +122,124 @@ class Lexer
     }
 
     /**
+     * @return string
+     *
+     * https://github.com/golang/go/blob/8adc1e00aa1a92a85b9d6f3526419d49dd7859dd/src/go/scanner/scanner.go#L636
+     */
+    private function scanString(): string
+    {
+        // TODO: Scannerとはロジックが若干違うので、while前に一文字すすめる。
+        // $offs = $this->position - 1; // '"' opening already consumed
+        $offs = $this->position; // '"' opening already consumed
+        $this->readCharacter();
+        while (true) {
+            $ch = $this->ch;
+            if ($ch == "\n" || $ch == self::$null) {
+                throw new \UnexpectedValueException("string literal not terminated");
+            }
+            $this->readCharacter();
+            if ($ch == '"') {
+                break;
+            }
+            if ($ch == "\\") {
+                $this->scanEscape('"');
+            }
+        }
+        return substr($this->codes, $offs, $this->position - $offs); // [$offs:$this->position]
+    }
+
+    /**
+     * @param string $quote a character.
+     * @return bool false if the offending character (without consuming it). Otherwise return true.
+     *
+     * scanEscape is ported from go/scanner/Scanner.scanEscape.
+     *
+     * scanEscape parses an escape sequence where rune is the accepted
+     * escaped quote. In case of a syntax error, it stops at the offending
+     * character (without consuming it) and returns false. Otherwise
+     * it returns true.
+     */
+    private function scanEscape(string $quote): bool
+    {
+        $offs = $this->position;
+
+        $n = 0;
+        $base = 0;
+        $max = 0;
+        switch ($this->ch) {
+            case 'a':
+            case 'b':
+            case 'f':
+            case 'n':
+            case 'r':
+            case 't':
+            case 'v':
+            case '\\':
+            case $quote:
+                $this->readCharacter();
+                return true;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+                $n = 3;
+                $base = 8;
+                $max = 255;
+                break;
+            case 'x':
+                $this->readCharacter();
+                $n = 2;
+                $base = 16;
+                $max = 255;
+                break;
+            case 'u':
+                $this->readCharacter();
+                $n = 4;
+                $base = 16;
+                $max = -1; // FIXME: unicode.MaxRune
+                break;
+            case 'U':
+                $this->readCharacter();
+                $n = 8;
+                $base = 16;
+                $max = -1; // FIXME: unicode.MaxRune
+                break;
+            default:
+                if ($this->ch == self::$null) {
+                    throw new \UnexpectedValueException("escape sequence not terminated");
+                }
+                throw new \UnexpectedValueException("unknown escape sequence");
+        }
+        $x = 0;
+        // TODO: port from Go to PHP.
+        // for n > 0 {
+        //    d := uint32(digitVal(s.ch))
+        //    if d >= base {
+        //        msg := fmt.Sprintf("illegal character %#U in escape sequence", s.ch)
+        //        if s.ch < 0 {
+        //            msg = "escape sequence not terminated"
+        //        }
+        //        s.error(s.offset, msg)
+        //        return false
+        //    }
+        //    x = x*base + d
+        //    s.next()
+        //    n--
+        // }
+        if ($x > $max || 0xD800 <= $x && $x < 0xE000) {
+            // s.error(offs, "escape sequence is invalid Unicode code point")
+            throw new \InvalidArgumentException("escape sequence is invalid Unicode code point");
+        }
+        // TODO: 現状の実装では\"しか観ていないはず。
+        throw new \LogicException("not through end function");
+        // return true;
+    }
+
+    /**
      * go/token/Token.switch2
      *
      * @param Token $tok0
@@ -145,6 +268,10 @@ class Lexer
                 // from s.skipWhitespace()
                 $this->insertSemi = false; // newline consumed
                 return new Token(new SemicolonType(), "\n");
+            case '"':
+                $this->insertSemi = true;
+                return new Token(new StringType(), $this->scanString());
+                break;
             case "=":
                 $token = new Token(new AssignType(), "");
                 break;
