@@ -55,7 +55,7 @@ final class Parser
             echo 'type: ' . $this->curToken->type->getType() . PHP_EOL;
             switch ($this->curToken->type->getType()) {
                 case TokenType::T_IMPORT:
-                    $this->parseImportGenDecl($this->curToken);
+                    $statements[] = $this->parseImportGenDecl($this->curToken);
                     break;
             }
             $this->nextToken();
@@ -80,10 +80,12 @@ final class Parser
         $this->nextToken(); // pos := p.expect(keyword) // TODO: Declのポジションをposに保存しつつnextTokenする。
         $list = []; // []ast.Spec
         if ($this->curToken->type instanceof LparenType) {
+            // lparen = p.pos // TODO: lparenのposを記憶しておく
+            $this->nextToken();
             while (!($this->curToken->type instanceof RparenType) && !($this->curToken->type instanceof EofType)) {
                 $list[] = $this->parseImportSpec();
             }
-            $this->nextToken(); // rparen = p.expect(token.RPAREN) // TODO: rparenだったらposを記憶しておく。
+            $this->expect(TokenType::T_RPAREN); // rparen = p.expect(token.RPAREN) // TODO: rparenのposを記憶しておく。
             $this->expectSemi();
         } else {
             $list[] = $this->parseImportSpec();
@@ -117,7 +119,7 @@ final class Parser
         $this->expectSemi(); // call before accessing p.linecomment
 
         // collect imports
-        $spec = new ImportSpec($path, $indent);
+        $spec = new ImportSpec(new Token(new StringType(), $path), $indent);
         // p.imports = append(p.imports, spec) // TODO: set if build fset.
         return $spec;
     }
