@@ -17,7 +17,6 @@ use PhpGo\Token\RparenType;
 use PhpGo\Token\SemicolonType;
 use PhpGo\Token\StringType;
 use PhpGo\Token\Token;
-use PhpGo\Token\TokenType;
 
 class Lexer
 {

@@ -2,13 +2,11 @@
 
 namespace PhpGo\Parser;
 
-use _HumbugBoxb49a3c9618cf\Nette\DI\Definitions\ImportedDefinition;
 use PhpGo\Ast\DeclarationInterface;
 use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Ast\Program;
-use PhpGo\Ast\StatementInterface;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
 use PhpGo\Token\IdentType;
@@ -16,6 +14,7 @@ use PhpGo\Token\ImportType;
 use PhpGo\Token\LparenType;
 use PhpGo\Token\PeriodType;
 use PhpGo\Token\RparenType;
+use PhpGo\Token\StringType;
 use PhpGo\Token\Token;
 use PhpGo\Token\TokenType;
 
@@ -52,7 +51,6 @@ final class Parser
     {
         $statements = [];
         while (!$this->curToken->type instanceof EofType) {
-            echo 'type: ' . $this->curToken->type->getType() . PHP_EOL;
             switch ($this->curToken->type->getType()) {
                 case TokenType::T_IMPORT:
                     $statements[] = $this->parseImportGenDecl($this->curToken);
