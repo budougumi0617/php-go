@@ -45,6 +45,7 @@ final class Parser
     {
         $this->curToken = $this->peekToken;
         $this->peekToken = $this->lexer->nextToken();
+        // TODO: Goのparser.next()にはコメントだったらスキップするような処理が入っている。
     }
 
     public function parseProgram(): Program
@@ -52,6 +53,12 @@ final class Parser
         $statements = [];
         while (!$this->curToken->type instanceof EofType) {
             switch ($this->curToken->type->getType()) {
+                // FIXME: 本当はファイルの戦闘に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
+                case TokenType::T_PACKAGE:
+                    // TODO: $program.packageにposition of "package" keywordを保存しておく
+                     $this->expect(TokenType::T_PACKAGE);
+                     $name = $this->parseIdent();
+                    break;
                 case TokenType::T_IMPORT:
                     $statements[] = $this->parseImportGenDecl($this->curToken);
                     break;
@@ -59,7 +66,9 @@ final class Parser
             $this->nextToken();
         }
 
-        return new Program($statements);
+        $program = new Program($statements);
+        $program->name = $name;
+        return $program;
     }
 
     /**

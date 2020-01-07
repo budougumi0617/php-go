@@ -18,6 +18,7 @@ final class Ident
     {
         $this->object = null;
         $this->name = $name;
+        // FIXME: need to keep position.
         $this->namePos = 0;
     }
 }

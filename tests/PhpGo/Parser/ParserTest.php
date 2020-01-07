@@ -64,4 +64,18 @@ EOT;
         $is = $castImportSpec($genDecl->specs[0]);
         $this->assertEquals('"log"', $is->path->kind->literal);
     }
+
+    public function test_parseProgram_package(): void
+    {
+        // わざと改行とスペースを含んでいる。
+        $input = <<<EOT
+
+  
+package main
+EOT;
+        $parser = new Parser(new Lexer($input));
+        $program = $parser->parseProgram();
+        $this->assertNotNull($program);
+        $this->assertEquals('main', $program->name->name);
+    }
 }
