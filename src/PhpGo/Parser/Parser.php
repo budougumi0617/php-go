@@ -7,6 +7,7 @@ use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Ast\Program;
+use PhpGo\Ast\ReturnStatement;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
 use PhpGo\Token\IdentType;
@@ -30,12 +31,15 @@ final class Parser
     private Lexer $lexer;
     private ?Token $curToken;
     private ?Token $peekToken;
+    private bool $inRhs; // if set, the parser is parsing a rhs expression
+
 
     public function __construct(Lexer $l)
     {
         $this->lexer = $l;
         $this->peekToken = null;
         $this->curToken = null;
+        $this->inRhs = false;
         // initialize $curToken, $peekToken.
         $this->nextToken();
         $this->nextToken();
@@ -51,16 +55,21 @@ final class Parser
     public function parseProgram(): Program
     {
         $statements = [];
+        $name = null;
         while (!$this->curToken->type instanceof EofType) {
             switch ($this->curToken->type->getType()) {
                 // FIXME: 本当はファイルの戦闘に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
                 case TokenType::T_PACKAGE:
                     // TODO: $program.packageにposition of "package" keywordを保存しておく
-                     $this->expect(TokenType::T_PACKAGE);
-                     $name = $this->parseIdent();
+                    $this->expect(TokenType::T_PACKAGE);
+                    $name = $this->parseIdent();
                     break;
                 case TokenType::T_IMPORT:
                     $statements[] = $this->parseImportGenDecl($this->curToken);
+                    break;
+                // FIXME: 実装中だけ。トップレベルではこない。
+                case TokenType::T_RETURN:
+                    $statements[] = $this->parseReturnStmt($this->curToken);
                     break;
             }
             $this->nextToken();
@@ -130,6 +139,71 @@ final class Parser
         // p.imports = append(p.imports, spec) // TODO: set if build fset.
         return $spec;
     }
+
+    // FIXME: 動作確認ができたらprivateにする
+    public function parseReturnStmt(): ReturnStatement
+    {
+        $this->expect(TokenType::T_RETURN);
+        $x = [];
+        if ($this->curToken->type->getType() !== TokenType::T_SEMICOLON
+            && $this->curToken->type->getType() !== TokenType::T_RBRACE) {
+            $x = $this->parseRhsList();
+        }
+        $this->expectSemi();
+        return new ReturnStatement(x);
+    }
+
+    private function parseRhsList(): array // array<ast.Expr>
+    {
+        $old = $this->inRhs;
+        $this->inRhs = true;
+        $list = $this->parseExprList(false);
+        $this->inRhs = $old;
+        return $list;
+    }
+
+    // If lhs is set, result list elements which are identifiers are not resolved.
+    private function parseExprList(bool $lhs): array // array<ast.Expr>
+    {
+        $list = [];
+        //	list = append(list, p.checkExpr(p.parseExpr(lhs)))
+        //	for p.tok == token.COMMA {
+        //		p.next()
+        //		list = append(list, p.checkExpr(p.parseExpr(lhs)))
+        //	}
+        return $list;
+    }
+
+    // // checkExpr checks that x is an expression (and not a type).
+    //func (p *parser) checkExpr(x ast.Expr) ast.Expr {
+    //	switch unparen(x).(type) {
+    //	case *ast.BadExpr:
+    //	case *ast.Ident:
+    //	case *ast.BasicLit:
+    //	case *ast.FuncLit:
+    //	case *ast.CompositeLit:
+    //	case *ast.ParenExpr:
+    //		panic("unreachable")
+    //	case *ast.SelectorExpr:
+    //	case *ast.IndexExpr:
+    //	case *ast.SliceExpr:
+    //	case *ast.TypeAssertExpr:
+    //		// If t.Type == nil we have a type assertion of the form
+    //		// y.(type), which is only allowed in type switch expressions.
+    //		// It's hard to exclude those but for the case where we are in
+    //		// a type switch. Instead be lenient and test this in the type
+    //		// checker.
+    //	case *ast.CallExpr:
+    //	case *ast.StarExpr:
+    //	case *ast.UnaryExpr:
+    //	case *ast.BinaryExpr:
+    //	default:
+    //		// all other nodes are not proper expressions
+    //		p.errorExpected(x.Pos(), "expression")
+    //		x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
+    //	}
+    //	return x
+    //}
 
     /**
      * port from go/parser/Parser.expectSemi.
