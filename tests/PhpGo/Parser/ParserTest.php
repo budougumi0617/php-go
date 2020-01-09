@@ -78,4 +78,16 @@ EOT;
         $this->assertNotNull($program);
         $this->assertEquals('main', $program->name->name);
     }
+
+    // TODO: それなりに終わったらparseReturnStmtをprivateメソッドにするので消す。
+    public function test_parseReturnStmt(): void
+    {
+        $input = <<<EOT
+	return x + y
+EOT;
+        $parser = new Parser(new Lexer($input));
+        $program = $parser->parseProgram();
+        $this->assertNotNull($program);
+        $this->assertEquals('main', $program->name->name);
+    }
 }
