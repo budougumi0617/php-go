@@ -8,6 +8,7 @@ use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Ast\Program;
 use PhpGo\Ast\ReturnStatement;
+use PhpGo\Ast\StatementInterface;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
 use PhpGo\Token\IdentType;
@@ -153,15 +154,9 @@ final class Parser
         return new ReturnStatement(x);
     }
 
-    private function parseRhsList(): array // array<ast.Expr>
-    {
-        $old = $this->inRhs;
-        $this->inRhs = true;
-        $list = $this->parseExprList(false);
-        $this->inRhs = $old;
-        return $list;
-    }
-
+    // ----------------------------------------------------------------------------
+    // Common productions
+    
     // If lhs is set, result list elements which are identifiers are not resolved.
     private function parseExprList(bool $lhs): array // array<ast.Expr>
     {
@@ -173,6 +168,44 @@ final class Parser
         //	}
         return $list;
     }
+
+    //func (p *parser) parseLhsList() []ast.Expr {
+    //	old := p.inRhs
+    //	p.inRhs = false
+    //	list := p.parseExprList(true)
+    //	switch p.tok {
+    //	case token.DEFINE:
+    //		// lhs of a short variable declaration
+    //		// but doesn't enter scope until later:
+    //		// caller must call p.shortVarDecl(p.makeIdentList(list))
+    //		// at appropriate time.
+    //	case token.COLON:
+    //		// lhs of a label declaration or a communication clause of a select
+    //		// statement (parseLhsList is not called when parsing the case clause
+    //		// of a switch statement):
+    //		// - labels are declared by the caller of parseLhsList
+    //		// - for communication clauses, if there is a stand-alone identifier
+    //		//   followed by a colon, we have a syntax error; there is no need
+    //		//   to resolve the identifier in that case
+    //	default:
+    //		// identifiers must be declared elsewhere
+    //		for _, x := range list {
+    //			p.resolve(x)
+    //		}
+    //	}
+    //	p.inRhs = old
+    //	return list
+    //}
+
+    private function parseRhsList(): array // array<ast.Expr>
+    {
+        $old = $this->inRhs;
+        $this->inRhs = true;
+        $list = $this->parseExprList(false);
+        $this->inRhs = $old;
+        return $list;
+    }
+
 
     // // checkExpr checks that x is an expression (and not a type).
     //func (p *parser) checkExpr(x ast.Expr) ast.Expr {
@@ -203,6 +236,102 @@ final class Parser
     //		x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
     //	}
     //	return x
+    //}
+
+    // ----------------------------------------------------------------------------
+    // Statements
+
+    /**
+     *
+     * parseSimpleStmt returns true as 2nd result if it parsed the assignment
+     * of a range clause (with mode == rangeOk). The returned statement is an
+     * assignment with a right-hand side that is a single unary expression of
+     * the form "range x". No guarantees are given for the left-hand side.
+     * @param int $mode
+     * @return StatementInterface
+     *
+     *  port from go/parser/Parser.parseSimpleStmt.
+     */
+    private function parseSimpleStmt(int $mode): StatementInterface
+    {
+        return null;
+    }
+    //func (p *parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
+    //	if p.trace {
+    //		defer un(trace(p, "SimpleStmt"))
+    //	}
+    //
+    //	x := p.parseLhsList()
+    //
+    //	switch p.tok {
+    //	case
+    //		token.DEFINE, token.ASSIGN, token.ADD_ASSIGN,
+    //		token.SUB_ASSIGN, token.MUL_ASSIGN, token.QUO_ASSIGN,
+    //		token.REM_ASSIGN, token.AND_ASSIGN, token.OR_ASSIGN,
+    //		token.XOR_ASSIGN, token.SHL_ASSIGN, token.SHR_ASSIGN, token.AND_NOT_ASSIGN:
+    //		// assignment statement, possibly part of a range clause
+    //		pos, tok := p.pos, p.tok
+    //		p.next()
+    //		var y []ast.Expr
+    //		isRange := false
+    //		if mode == rangeOk && p.tok == token.RANGE && (tok == token.DEFINE || tok == token.ASSIGN) {
+    //			pos := p.pos
+    //			p.next()
+    //			y = []ast.Expr{&ast.UnaryExpr{OpPos: pos, Op: token.RANGE, X: p.parseRhs()}}
+    //			isRange = true
+    //		} else {
+    //			y = p.parseRhsList()
+    //		}
+    //		as := &ast.AssignStmt{Lhs: x, TokPos: pos, Tok: tok, Rhs: y}
+    //		if tok == token.DEFINE {
+    //			p.shortVarDecl(as, x)
+    //		}
+    //		return as, isRange
+    //	}
+    //
+    //	if len(x) > 1 {
+    //		p.errorExpected(x[0].Pos(), "1 expression")
+    //		// continue with first expression
+    //	}
+    //
+    //	switch p.tok {
+    //	case token.COLON:
+    //		// labeled statement
+    //		colon := p.pos
+    //		p.next()
+    //		if label, isIdent := x[0].(*ast.Ident); mode == labelOk && isIdent {
+    //			// Go spec: The scope of a label is the body of the function
+    //			// in which it is declared and excludes the body of any nested
+    //			// function.
+    //			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
+    //			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
+    //			return stmt, false
+    //		}
+    //		// The label declaration typically starts at x[0].Pos(), but the label
+    //		// declaration may be erroneous due to a token after that position (and
+    //		// before the ':'). If SpuriousErrors is not set, the (only) error
+    //		// reported for the line is the illegal label error instead of the token
+    //		// before the ':' that caused the problem. Thus, use the (latest) colon
+    //		// position for error reporting.
+    //		p.error(colon, "illegal label declaration")
+    //		return &ast.BadStmt{From: x[0].Pos(), To: colon + 1}, false
+    //
+    //	case token.ARROW:
+    //		// send statement
+    //		arrow := p.pos
+    //		p.next()
+    //		y := p.parseRhs()
+    //		return &ast.SendStmt{Chan: x[0], Arrow: arrow, Value: y}, false
+    //
+    //	case token.INC, token.DEC:
+    //		// increment or decrement
+    //		s := &ast.IncDecStmt{X: x[0], TokPos: p.pos, Tok: p.tok}
+    //		p.next()
+    //		return s, false
+    //	}
+    //
+    //	// expression
+    //	return &ast.ExprStmt{X: x[0]}, false
     //}
 
     /**
