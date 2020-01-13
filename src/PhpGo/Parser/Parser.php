@@ -177,7 +177,7 @@ final class Parser
             $x = $this->parseRhsList();
         }
         $this->expectSemi();
-        return new ReturnStatement(x);
+        return new ReturnStatement($x);
     }
 
     private function parseBody(Scope $scope): BlockStmt
@@ -212,6 +212,7 @@ final class Parser
     private function parseFuncDecl(): FuncDecl
     {
         // doc := p.leadComment
+        $pos = $this->expect(TokenType::T_FUNC); // FuncTypeで使う
         $scope = new Scope($this->topScope);
 
 
@@ -223,7 +224,6 @@ final class Parser
         // }
         //
         $ident = $this->parseIdent();
-        //
         // params, results := p.parseSignature(scope)
 
         $body = null;
