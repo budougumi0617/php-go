@@ -22,6 +22,19 @@ final class GoObject
     // var unresolved = new(ast.Object)
     public const UNRESOLVED_OBJECT = 'UNRESOLVED_OBJECT';
 
+    /**
+     * GoObject constructor.
+     * @param ObjectKind $kind
+     * @param string $name
+     *
+     * port from go/ast/NewObj
+     */
+    public function __construct(ObjectKind $kind, string $name)
+    {
+        $this->kind = $kind;
+        $this->name = $name;
+    }
+
     public static function unresolovedObject(): GoObject
     {
         $obj = new GoObject();
