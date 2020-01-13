@@ -193,6 +193,22 @@ final class Parser
         return new BlockStmt($lbrace, $list, $rbrace);
     }
 
+    /**
+     * @return array<StatementInterface>
+     */
+    private function parseStmtList(): array
+    {
+        /** @var array<StatementInterface> $list */
+        $list = [];
+        while ($this->curToken->type->getType() != TokenType::T_CASE
+            && $this->curToken->type->getType() != TokenType::T_DEFAULT
+            && $this->curToken->type->getType() != TokenType::T_RBRACE
+            && $this->curToken->type->getType() != TokenType::T_EOF) {
+            $list[] = $this->parseStmt();
+        }
+        return $list;
+    }
+
     private function parseFuncDecl(): FuncDecl
     {
         // doc := p.leadComment
