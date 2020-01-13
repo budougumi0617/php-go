@@ -577,6 +577,43 @@ final class Parser
         $this->tryResolve($x, true);
     }
 
+    // ----------------------------------------------------------------------------
+    // Scoping support
+
+    private function openScope(): void
+    {
+        $this->topScope = new Scope($this->topScope);
+    }
+
+    private function closeScope(): void
+    {
+        $this->topScope = $this->topScope->outer;
+    }
+
+    private function openLabelScope(): void
+    {
+        // TODO: need to implementation.
+        // p.labelScope = ast.NewScope(p.labelScope)
+        // p.targetStack = append(p.targetStack, nil)
+    }
+
+    private function closeLabelScope(): void
+    {
+        // TODO: need to implementation.
+        // resolve labels
+        //n := len(p.targetStack) - 1
+        // scope := p.labelScope
+        // for _, ident := range p.targetStack[n] {
+        //    ident.Obj = scope.Lookup(ident.Name)
+        //    if ident.Obj == nil && p.mode&DeclarationErrors != 0 {
+        //        p.error(ident.Pos(), fmt.Sprintf("label %s undefined", ident.Name))
+        //    }
+        //  }
+        // pop label scope
+        // p.targetStack = p.targetStack[0:n]
+        // p.labelScope = p.labelScope.Outer
+    }
+
     /**
      * @param AssignStmt $decl
      * @param array<ExpressionInterface> $list
