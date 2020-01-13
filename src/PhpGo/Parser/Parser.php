@@ -5,6 +5,7 @@ namespace PhpGo\Parser;
 use BadMethodCallException;
 use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BadExpr;
+use PhpGo\Ast\BasicLit;
 use PhpGo\Ast\BinaryExpr;
 use PhpGo\Ast\BlockStmt;
 use PhpGo\Ast\DeclarationInterface;
@@ -330,6 +331,57 @@ final class Parser
         return $list;
     }
 
+    // ----------------------------------------------------------------------------
+    // Expressions
+
+    /**
+     * parseOperand may return an expression or a raw type (incl. array
+     * types of the form [...]T. Callers must verify the result.
+     * If lhs is set and the result is an identifier, it is not resolved.
+     * @param bool $lhs
+     * @return ExpressionInterface
+     */
+    private function parseOperand(bool $lhs): ExpressionInterface
+    {
+        switch ($this->curToken->type->getType()) {
+            case TokenType::T_IDENT:
+                $x = $this->parseIdent();
+                if (!$lhs) {
+                    $this->resolve($x);
+                }
+                return $x;
+            case TokenType::T_STRING:
+            // case token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+                $x = new BasicLit($this->curToken);
+                $this->nextToken();
+                return $x;
+            // case token.LPAREN:
+            //      lparen := p.pos
+            //      p.next()
+            //      p.exprLev++
+            //      x := p.parseRhsOrType() // types may be parenthesized: (some type)
+            //      p.exprLev--
+            //      rparen := p.expect(token.RPAREN)
+            //      return &ast.ParenExpr{Lparen: lparen, X: x, Rparen: rparen}
+            // case token.FUNC:
+            //      return p.parseFuncTypeOrLit()
+            default:
+                throw new BadMethodCallException(__METHOD__ . "not implementation {$this->curToken->string()}yet.");
+        }
+        // if typ := p.tryIdentOrType(); typ != nil {
+        //      // could be type for composite literal or conversion
+        //      _, isIdent := typ.(*ast.Ident)
+        //      assert(!isIdent, "type cannot be identifier")
+        //      return typ
+        //  }
+        //
+        //  // we have an error
+        //  pos := p.pos
+        //  p.errorExpected(pos, "operand")
+        //  p.advance(stmtStart)
+        //  return &ast.BadExpr{From: pos, To: p.pos}
+    }
+    
     /**
      * If lhs is set and the result is an identifier, it is not resolved.
      *
