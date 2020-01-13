@@ -30,6 +30,6 @@ final class UnaryExpr implements ExpressionInterface
 
     public function tokenLiteral(): string
     {
-        // TODO: Implement tokenLiteral() method.
+        return "{$this->op->string()} {$this->x->tokenLiteral()}";
     }
 }
