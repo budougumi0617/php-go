@@ -242,6 +242,18 @@ final class Parser
         }
         return [$tok, $tok->precedence()];
     }
+    /**
+    /**
+     * If lhs is set and the result is an identifier, it is not resolved.
+     * The result may be a type or even a raw type ([...]int). Callers must
+     * check the result (using checkExpr or checkExprOrType), depending on
+     * context.
+     */
+    private function parseExpr(bool $lhs): ExpressionInterface
+    {
+        return $this->parseBinaryExpr($lhs, Token::LOWEST_PREC + 1);
+    }
+
     private function parseRhs(): ExpressionInterface
     {
         $old = $this->inRhs;
