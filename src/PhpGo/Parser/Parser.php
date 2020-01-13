@@ -238,6 +238,49 @@ final class Parser
     //	return x
     //}
 
+    /**
+     * If x is an identifier, tryResolve attempts to resolve x by looking up
+     * the object it denotes. If no object is found and collectUnresolved is
+     * set, x is marked as unresolved and collected in the list of unresolved
+     * identifiers.
+     *
+     * @param ExpressionInterface $x
+     * @param bool $collectUnresolved
+     */
+    private function tryResolve(ExpressionInterface $x, bool $collectUnresolved): void
+    {
+        // nothing to do if x is not an identifier or the blank identifier
+        if (!($x instanceof Ident)) {
+            return;
+        }
+        $ident = Ident::castIdent($x);
+        if ($ident->name === '_') {
+            return;
+        }
+
+        // try to resolve the identifier
+        for ($s = $this->topScope; $s != null; $s = $s->outer) {
+            $obj = $s->lookup($ident->name);
+            if (!is_null($obj)) {
+                $ident->object = $obj;
+                return;
+            }
+        }
+        // all local scopes are known, so any unresolved identifier
+        // must be found either in the file scope, package scope
+        // (perhaps in another file), or universe scope --- collect
+        // them so that they can be resolved later
+        if ($collectUnresolved) {
+            $ident->object = GoObject::unresolovedObject();
+            $this->unresolved[] = $ident;
+        }
+    }
+
+    private function resolve(ExpressionInterface $x): void
+    {
+        $this->tryResolve($x, true);
+    }
+
     // ----------------------------------------------------------------------------
     // Statements
 
