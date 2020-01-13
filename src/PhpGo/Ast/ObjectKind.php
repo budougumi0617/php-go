@@ -16,4 +16,21 @@ final class ObjectKind
     public const VAR = 'variable';
     public const FUN = 'function or method';
     public const LBL = 'label';
+
+    private string $kind;
+
+    private function __construct(string $kind)
+    {
+        $this->kind = $kind;
+    }
+
+    public function kind(): string
+    {
+        return $this->kind;
+    }
+
+    public static function kindVar():ObjectKind
+    {
+        return new ObjectKind(self::VAR);
+    }
 }
