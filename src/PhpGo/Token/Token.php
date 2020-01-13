@@ -2,6 +2,7 @@
 
 namespace PhpGo\Token;
 
+use UnexpectedValueException;
 class Token
 {
     public TokenType $type;
@@ -95,5 +96,13 @@ class Token
                 return 5;
         }
         return self::LOWEST_PREC;
+    }
+
+    public static function castToken($obj): Token
+    {
+        if (!($obj instanceof Token)) {
+            throw new UnexpectedValueException("castToken: cannot cast Token {$obj}");
+        }
+        return $obj;
     }
 }
