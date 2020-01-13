@@ -19,6 +19,19 @@ final class AssignStmt implements StatementInterface
     /** @var array<ExpressionInterface> $rhs */
     public array $rhs;
 
+    /**
+     * AssignStmt constructor.
+     * @param array<ExpressionInterface> $lhs
+     * @param Token $tok
+     * @param array<ExpressionInterface> $rhs
+     */
+    public function __construct(array $lhs, Token $tok, array $rhs)
+    {
+        $this->lhs = $lhs;
+        $this->tok = $tok;
+        $this->rhs = $rhs;
+    }
+
     public function tokenLiteral(): string
     {
         $lhs = '';
