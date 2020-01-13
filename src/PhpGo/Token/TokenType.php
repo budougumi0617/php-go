@@ -10,6 +10,7 @@ namespace PhpGo\Token;
  */
 abstract class TokenType
 {
+
     protected string $type;
 
     public function getType(): string
@@ -39,6 +40,15 @@ abstract class TokenType
     public const T_ASSIGN = "ASSIGN"; // =
     public const T_ADD = "ADD"; // +
     public const T_SUB = "SUB"; // -
+    public const T_MUL = 'MUL'; // *
+
+
+    public const T_AND = 'AND'; // &
+    public const T_OR = 'OR';   // |
+    public const T_XOR = 'XOR'; // ^
+    public const T_SHL = 'SHL'; // <<
+    public const T_SHR = 'SHR'; // >>
+    public const T_AND_NOT = 'AND_NOT'; // &^
 
     public const T_ADD_ASSIGN = 'ADD_ASSIGN'; // +=
     public const T_SUB_ASSIGN = 'SUB_ASSIGN'; // -=
@@ -58,6 +68,11 @@ abstract class TokenType
     public const T_ARROW = 'ARROW'; // <-
     public const T_INC = 'INC'; // ++
     public const T_DEC = 'DEC'; // --
+
+    public const T_EQL = 'EOL'; // ==
+    public const T_LSS = 'LSS'; // <
+    public const T_GTR = 'GTR'; // >
+    public const T_NOT = 'NOT'; // !
 
     public const T_DEFINE = "DEFINE";  // :=
 
