@@ -23,6 +23,7 @@ use PhpGo\Ast\StatementInterface;
 use PhpGo\Ast\UnaryExpr;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
+use PhpGo\Token\EqlType;
 use PhpGo\Token\IdentType;
 use PhpGo\Token\ImportType;
 use PhpGo\Token\LparenType;
@@ -180,6 +181,7 @@ final class Parser
     private function parseExprList(bool $lhs): array // array<ast.Expr>
     {
         $list = [];
+        throw new BadMethodCallException('');
         //	list = append(list, p.checkExpr(p.parseExpr(lhs)))
         //	for p.tok == token.COMMA {
         //		p.next()
@@ -242,7 +244,35 @@ final class Parser
         }
         return [$tok, $tok->precedence()];
     }
+
     /**
+     * If lhs is set and the result is an identifier, it is not resolved.
+     *
+     * @param bool $lhs
+     * @param int $prec1
+     * @return ExpressionInterface
+     */
+    private function parseBinaryExpr(bool $lhs, int $prec1): ExpressionInterface
+    {
+        $x = $this->parseUnaryExpr($lhs);
+        while (true) {
+            $arr = $this->tokPrec(); // array [Token, int]
+            $op = $arr[0];
+            $oprec = $arr[1];
+            if ($oprec < $prec1) {
+                return $x;
+            }
+            $pos = $this->expect($op);
+            if ($lhs) {
+                $this->resolve($x);
+                $lhs = false;
+            }
+            $y = $this->parseBinaryExpr(false, $oprec + 1);
+            // x = &ast.BinaryExpr{X: p.checkExpr(x), OpPos: pos, Op: op, Y: p.checkExpr(y)}
+            $x = new BinaryExpr(); // TODO: FIXME:
+        }
+    }
+
     /**
      * If lhs is set and the result is an identifier, it is not resolved.
      * The result may be a type or even a raw type ([...]int). Callers must
