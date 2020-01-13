@@ -20,6 +20,7 @@ use PhpGo\Ast\Program;
 use PhpGo\Ast\ReturnStatement;
 use PhpGo\Ast\Scope;
 use PhpGo\Ast\StatementInterface;
+use PhpGo\Ast\UnaryExpr;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
 use PhpGo\Token\IdentType;
@@ -228,6 +229,15 @@ final class Parser
         $list = $this->parseExprList(false);
         $this->inRhs = $old;
         return $list;
+    }
+
+    private function parseRhs(): ExpressionInterface
+    {
+        $old = $this->inRhs;
+        $this->inRhs = true;
+        $x = $this->checkExpr($this->parseExpr(false));
+        $this->inRhs = $old;
+        return $x;
     }
 
     /**
@@ -445,8 +455,8 @@ final class Parser
                     && ($tok->type->getType() == TokenType::T_DEFINE || $tok->type->getType() == TokenType::T_ASSIGN)) {
                     // TODO: pos := p.pos
                     $this->nextToken();
-                    //			y = []ast.Expr{&ast.UnaryExpr{OpPos: pos, Op: token.RANGE, X: p.parseRhs()}}
-
+                    // y = []ast.Expr{&ast.UnaryExpr{OpPos: pos, Op: token.RANGE, X: p.parseRhs()}}
+                    $y[] = new UnaryExpr(new Token(TokenType::T_RANGE, ''), $this->parseRhs());
                     $isRange = true;
                 } else {
                     $y = $this->parseRhsList();
