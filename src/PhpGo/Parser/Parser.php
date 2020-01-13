@@ -555,28 +555,30 @@ final class Parser
     {
         $x = $this->unparen($x);
         switch (true) {
-            // case *ast.BadExpr:
+            case $x instanceof BadExpr:
             case $x instanceof Ident:
-                // case *ast.BasicLit:
+            case $x instanceof BasicLit:
                 // case *ast.FuncLit:
                 // case *ast.CompositeLit:
-            case $x instanceof ParenExpr:
-                throw new UnexpectedValueException("checkExpr: unreachable {$x}");
                 break;
+            case $x instanceof ParenExpr:
+                throw new UnexpectedValueException("checkExpr: unreachable {$x->tokenLiteral()}");
             // case *ast.SelectorExpr:
             case $x instanceof IndexExpr:
                 // case *ast.SliceExpr:
+                break;
                 // case *ast.TypeAssertExpr:
                 // If t.Type == nil we have a type assertion of the form
                 // y.(type), which is only allowed in type switch expressions.
                 // It's hard to exclude those but for the case where we are in
                 // a type switch. Instead be lenient and test this in the type
                 // checker.
-                break;
+                // break;
             // case *ast.CallExpr:
             // case *ast.StarExpr:
-            // case *ast.UnaryExpr:
-            // case *ast.BinaryExpr:
+            case $x instanceof UnaryExpr:
+            case $x instanceof BinaryExpr:
+                break;
             default:
                 // all other nodes are not proper expressions
                 // p.errorExpected(x.Pos(), "expression")
