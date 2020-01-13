@@ -256,7 +256,7 @@ final class Parser
         $decl->body = $body;
         $decl->name = $ident;
         $decl->type = new FuncType();
-        if (is_null(recv)) {
+        if (is_null($recv)) {
             // Go spec: The scope of an identifier denoting a constant, type,
             // variable, or function (but not method) declared at top level
             // (outside any function) is the package block.
@@ -726,7 +726,7 @@ final class Parser
         foreach ($list as $x) {
             if ($x instanceof Ident) {
                 $ident = Ident::castIdent($x);
-                if ($ident->object == null) {
+                if ($ident->object != null) {
                     throw new UnexpectedValueException("identifier already declared or resolved");
                 }
                 $obj = new GoObject(ObjectKind::kindVar(), $ident->name);
@@ -1008,11 +1008,11 @@ final class Parser
     private function expect2(string $type): int
     {
         $pos = -1;
-        if ($this->curToken === $type) {
+        if ($this->curToken->type->getType() == $type) {
             // pos = p.pos
             $pos = -1;
         } else {
-            throw new UnexpectedValueException("expect2: unexpected {$type}");
+            throw new UnexpectedValueException("expect2: expected {$type}, but {$this->curToken->string()}");
         }
         $this->nextToken(); // make progress
         return $pos;
