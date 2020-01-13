@@ -2,6 +2,7 @@
 
 namespace PhpGo\Parser;
 
+use BadMethodCallException;
 use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BadExpr;
 use PhpGo\Ast\DeclarationInterface;
@@ -12,6 +13,7 @@ use PhpGo\Ast\GoObject;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Ast\IndexExpr;
+use PhpGo\Ast\LabeledStmt;
 use PhpGo\Ast\ObjectKind;
 use PhpGo\Ast\ParenExpr;
 use PhpGo\Ast\Program;
@@ -459,6 +461,7 @@ final class Parser
         if (count($x) > 1) {
             // errorExpected(x[0].Pos(), "1 expression")
             // continue with first expression
+            echo 'continue with first expression';
         }
         switch ($this->curToken->type->getType()) {
             case TokenType::T_COLON:
@@ -481,25 +484,108 @@ final class Parser
                 //		// position for error reporting.
                 //		p.error(colon, "illegal label declaration")
                 //		return &ast.BadStmt{From: x[0].Pos(), To: colon + 1}, false
-                throw new UnexpectedValueException("parseSimpleStmt: not implementation COLON yet.");
+                throw new BadMethodCallException("parseSimpleStmt: not implementation COLON yet.");
             case TokenType::T_ARROW:
                 // send statement
                 //		arrow := p.pos
                 //		p.next()
                 //		y := p.parseRhs()
                 //		return &ast.SendStmt{Chan: x[0], Arrow: arrow, Value: y}, false
-                throw new UnexpectedValueException("parseSimpleStmt: not implementation ALLOW yet.");
+                throw new BadMethodCallException("parseSimpleStmt: not implementation ALLOW yet.");
             case TokenType::T_INC:
             case TokenType::T_DEC:
                 // increment or decrement
                 //		s := &ast.IncDecStmt{X: x[0], TokPos: p.pos, Tok: p.tok}
                 //		p.next()
                 //		return s, false
-                throw new UnexpectedValueException("parseSimpleStmt: not implementation INC or DEC yet.");
+                throw new BadMethodCallException("parseSimpleStmt: not implementation INC or DEC yet.");
         }
         // expression
         $expr = new ExprStmt($x[0]);
         return [$expr, false];
+    }
+
+    /**
+     * @return StatementInterface
+     *
+     * port go/parser/Parser.parseStmt
+     */
+    private function parseStmt(): StatementInterface
+    {
+        $s = null;
+        switch ($this->curToken->type->getType()) {
+            case TokenType::T_CONST:
+            case TokenType::T_TYPE:
+            case TokenType::T_VAR:
+                // s = &ast.DeclStmt{Decl: p.parseDecl(stmtStart)}
+                break;
+            // tokens that may start an expression
+            case TokenType::T_IDENT:
+            case TokenType::T_INT:
+            case TokenType::T_FLOAT:
+            case TokenType::T_IMAG:
+            case TokenType::T_CHAR:
+            case TokenType::T_STRING:
+            case TokenType::T_FUNC:
+            case TokenType::T_LPAREN: // operands
+            case TokenType::T_LBRACK:
+            case TokenType::T_STRUCT:
+            case TokenType::T_MAP:
+            case TokenType::T_CHAN:
+            case TokenType::T_INTERFACE: // composite types
+            case TokenType::T_ADD:
+            case TokenType::T_SUB:
+            case TokenType::T_MUL:
+            case TokenType::T_AND:
+            case TokenType::T_XOR:
+            case TokenType::T_ARROW:
+            case TokenType::T_NOT: // unary operators
+                $result = $this->parseSimpleStmt(self::LABEL_OK);
+                $s = $result[0];
+                // because of the required look-ahead, labeled statements are
+                // parsed by parseSimpleStmt - don't expect a semicolon after
+                // them
+
+                if (!($s instanceof LabeledStmt)) {
+                    $this->expectSemi();
+                }
+                break;
+            case TokenType::T_GO:
+                throw new BadMethodCallException('parseStmt: not implement T_GO yet');
+            case TokenType::T_DEFER:
+                throw new BadMethodCallException('parseStmt: not implement T_DEFER yet');
+            case TokenType::T_RETURN:
+                // s = p.parseReturnStmt()
+                throw new BadMethodCallException('parseStmt: not implement T_RETURN yet');
+            case TokenType::T_BREAK:
+            case TokenType::T_CONTINUE:
+            case TokenType::T_GOTO:
+            case TokenType::T_FALLTHROUGH:
+                throw new BadMethodCallException('parseStmt: not implement break, continue, goto, fallthrough yet');
+            case TokenType::T_LBRACE:
+                throw new BadMethodCallException('parseStmt: not implement "{" yet');
+            case TokenType::T_IF:
+                throw new BadMethodCallException('parseStmt: not implement "if" yet');
+            case TokenType::T_SWITCH:
+                throw new BadMethodCallException('parseStmt: not implement "switch" yet');
+            case TokenType::T_SELECT:
+                throw new BadMethodCallException('parseStmt: not implement "select" yet');
+            case TokenType::T_FOR:
+                throw new BadMethodCallException('parseStmt: not implement "for" yet');
+            case TokenType::T_SEMICOLON:
+                throw new BadMethodCallException('parseStmt: not implement ";" yet');
+            case TokenType::T_RBRACE:
+                throw new BadMethodCallException('parseStmt: not implement "}" yet');
+            default:
+                // no statement found
+                // pos := p.pos
+                // p.errorExpected(pos, "statement")
+                // p.advance(stmtStart)
+                // s = &ast.BadStmt{From: pos, To: p.pos}
+                throw new UnexpectedValueException('no statement found');
+        }
+
+        return $s;
     }
 
     /**
@@ -518,7 +604,7 @@ final class Parser
                     $this->nextToken();
                     break;
                 default:
-                    throw new UnexpectedValueException('expected ";"');
+                    throw new BadMethodCallException('expected ";"');
                 // p.advance(stmtStart) // TODO: implement advance method.
             }
         }
