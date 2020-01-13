@@ -269,7 +269,7 @@ final class Parser
             }
             $y = $this->parseBinaryExpr(false, $oprec + 1);
             // x = &ast.BinaryExpr{X: p.checkExpr(x), OpPos: pos, Op: op, Y: p.checkExpr(y)}
-            $x = new BinaryExpr(); // TODO: FIXME:
+            $x = new BinaryExpr($x, $op, $y);
         }
     }
 
