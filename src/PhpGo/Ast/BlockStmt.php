@@ -15,11 +15,17 @@ final class BlockStmt implements StatementInterface
     public array $list;
     public int $rbrace; // position of "}"
 
-    public function __construct()
+    /**
+     * BlockStmt constructor.
+     * @param int $lbrace {の位置。
+     * @param array<StatementInterface> $list bodyの中にある文のリスト。
+     * @param int $rbrace }の位置。
+     */
+    public function __construct(int $lbrace, array $list, int $rbrace)
     {
-        $this->lbrace = 0;
-        $this->list = [];
-        $this->rbrace = 0;
+        $this->lbrace = $lbrace;
+        $this->list = $list;
+        $this->rbrace = $rbrace;
     }
 
     public function tokenLiteral(): string
