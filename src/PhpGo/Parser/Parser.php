@@ -398,98 +398,109 @@ final class Parser
     // ----------------------------------------------------------------------------
     // Statements
 
+    // Parsing modes for parseSimpleStmt.
+    private const BASIC = 0;
+    private const LABEL_OK = 1;
+    private const RANGE_OK = 2;
+
     /**
-     *
      * parseSimpleStmt returns true as 2nd result if it parsed the assignment
      * of a range clause (with mode == rangeOk). The returned statement is an
      * assignment with a right-hand side that is a single unary expression of
      * the form "range x". No guarantees are given for the left-hand side.
-     * @param int $mode
-     * @return StatementInterface
      *
-     *  port from go/parser/Parser.parseSimpleStmt.
+     * @param int $mode BASIC or LABEL_OK or RANGE_OK
+     * @return array [StatementInterface, bool]
+     *
+     * port from go/parser/Parser.parseSimpleStmt.
      */
-    private function parseSimpleStmt(int $mode): StatementInterface
+    private function parseSimpleStmt(int $mode): array
     {
-        return null;
+        $x = $this->parseLhsList();
+
+        switch ($this->curToken->type->getType()) {
+            case TokenType::T_DEFINE:
+            case TokenType::T_ASSIGN:
+            case TokenType::T_ADD_ASSIGN:
+            case TokenType::T_SUB_ASSIGN:
+            case TokenType::T_MUL_ASSIGN:
+            case TokenType::T_QUO_ASSIGN:
+            case TokenType::T_REM_ASSIGN:
+            case TokenType::T_AND_ASSIGN:
+            case TokenType::T_OR_ASSIGN:
+            case TokenType::T_XOR_ASSIGN:
+            case TokenType::T_SHL_ASSIGN:
+            case TokenType::T_SHR_ASSIGN:
+            case TokenType::T_AND_NOT_ASSIGN:
+                // assignment statement, possibly part of a range clause
+                // TODO: pos, tok := p.pos, p.tok
+                $tok = $this->curToken;
+                $this->nextToken();
+                /** @var array<ExpressionInterface> $y * */
+                $y = [];
+                $isRange = false;
+                if ($mode == self::RANGE_OK && $this->curToken->type->getType() == TokenType::T_RANGE
+                    && ($tok->type->getType() == TokenType::T_DEFINE || $tok->type->getType() == TokenType::T_ASSIGN)) {
+                    // TODO: pos := p.pos
+                    $this->nextToken();
+                    //			y = []ast.Expr{&ast.UnaryExpr{OpPos: pos, Op: token.RANGE, X: p.parseRhs()}}
+
+                    $isRange = true;
+                } else {
+                    $y = $this->parseRhsList();
+                }
+                $as = new AssignStmt($x, $tok, $y);
+                if ($tok->type->getType() == TokenType::T_DEFINE) {
+                    $this->shortVarDecl($as, $x);
+                }
+                return [$as, $isRange];
+        }
+
+        if (count($x) > 1) {
+            // errorExpected(x[0].Pos(), "1 expression")
+            // continue with first expression
+        }
+        switch ($this->curToken->type->getType()) {
+            case TokenType::T_COLON:
+                // labeled statement
+                // colon := p.pos
+                $this->nextToken();
+                //		if label, isIdent := x[0].(*ast.Ident); mode == labelOk && isIdent {
+                //			// Go spec: The scope of a label is the body of the function
+                //			// in which it is declared and excludes the body of any nested
+                //			// function.
+                //			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
+                //			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
+                //			return stmt, false
+                //		}
+                //		// The label declaration typically starts at x[0].Pos(), but the label
+                //		// declaration may be erroneous due to a token after that position (and
+                //		// before the ':'). If SpuriousErrors is not set, the (only) error
+                //		// reported for the line is the illegal label error instead of the token
+                //		// before the ':' that caused the problem. Thus, use the (latest) colon
+                //		// position for error reporting.
+                //		p.error(colon, "illegal label declaration")
+                //		return &ast.BadStmt{From: x[0].Pos(), To: colon + 1}, false
+                throw new UnexpectedValueException("parseSimpleStmt: not implementation COLON yet.");
+            case TokenType::T_ARROW:
+                // send statement
+                //		arrow := p.pos
+                //		p.next()
+                //		y := p.parseRhs()
+                //		return &ast.SendStmt{Chan: x[0], Arrow: arrow, Value: y}, false
+                throw new UnexpectedValueException("parseSimpleStmt: not implementation ALLOW yet.");
+            case TokenType::T_INC:
+            case TokenType::T_DEC:
+                // increment or decrement
+                //		s := &ast.IncDecStmt{X: x[0], TokPos: p.pos, Tok: p.tok}
+                //		p.next()
+                //		return s, false
+                throw new UnexpectedValueException("parseSimpleStmt: not implementation INC or DEC yet.");
+        }
+        // expression
+        $expr = new ExprStmt($x[0]);
+        return [$expr, false];
     }
-    //func (p *parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
-    //	if p.trace {
-    //		defer un(trace(p, "SimpleStmt"))
-    //	}
-    //
-    //	x := p.parseLhsList()
-    //
-    //	switch p.tok {
-    //	case
-    //		token.DEFINE, token.ASSIGN, token.ADD_ASSIGN,
-    //		token.SUB_ASSIGN, token.MUL_ASSIGN, token.QUO_ASSIGN,
-    //		token.REM_ASSIGN, token.AND_ASSIGN, token.OR_ASSIGN,
-    //		token.XOR_ASSIGN, token.SHL_ASSIGN, token.SHR_ASSIGN, token.AND_NOT_ASSIGN:
-    //		// assignment statement, possibly part of a range clause
-    //		pos, tok := p.pos, p.tok
-    //		p.next()
-    //		var y []ast.Expr
-    //		isRange := false
-    //		if mode == rangeOk && p.tok == token.RANGE && (tok == token.DEFINE || tok == token.ASSIGN) {
-    //			pos := p.pos
-    //			p.next()
-    //			y = []ast.Expr{&ast.UnaryExpr{OpPos: pos, Op: token.RANGE, X: p.parseRhs()}}
-    //			isRange = true
-    //		} else {
-    //			y = p.parseRhsList()
-    //		}
-    //		as := &ast.AssignStmt{Lhs: x, TokPos: pos, Tok: tok, Rhs: y}
-    //		if tok == token.DEFINE {
-    //			p.shortVarDecl(as, x)
-    //		}
-    //		return as, isRange
-    //	}
-    //
-    //	if len(x) > 1 {
-    //		p.errorExpected(x[0].Pos(), "1 expression")
-    //		// continue with first expression
-    //	}
-    //
-    //	switch p.tok {
-    //	case token.COLON:
-    //		// labeled statement
-    //		colon := p.pos
-    //		p.next()
-    //		if label, isIdent := x[0].(*ast.Ident); mode == labelOk && isIdent {
-    //			// Go spec: The scope of a label is the body of the function
-    //			// in which it is declared and excludes the body of any nested
-    //			// function.
-    //			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
-    //			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
-    //			return stmt, false
-    //		}
-    //		// The label declaration typically starts at x[0].Pos(), but the label
-    //		// declaration may be erroneous due to a token after that position (and
-    //		// before the ':'). If SpuriousErrors is not set, the (only) error
-    //		// reported for the line is the illegal label error instead of the token
-    //		// before the ':' that caused the problem. Thus, use the (latest) colon
-    //		// position for error reporting.
-    //		p.error(colon, "illegal label declaration")
-    //		return &ast.BadStmt{From: x[0].Pos(), To: colon + 1}, false
-    //
-    //	case token.ARROW:
-    //		// send statement
-    //		arrow := p.pos
-    //		p.next()
-    //		y := p.parseRhs()
-    //		return &ast.SendStmt{Chan: x[0], Arrow: arrow, Value: y}, false
-    //
-    //	case token.INC, token.DEC:
-    //		// increment or decrement
-    //		s := &ast.IncDecStmt{X: x[0], TokPos: p.pos, Tok: p.tok}
-    //		p.next()
-    //		return s, false
-    //	}
-    //
-    //	// expression
-    //	return &ast.ExprStmt{X: x[0]}, false
-    //}
 
     /**
      * port from go/parser/Parser.expectSemi.
