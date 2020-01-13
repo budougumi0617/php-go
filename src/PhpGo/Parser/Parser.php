@@ -6,9 +6,12 @@ use BadMethodCallException;
 use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BadExpr;
 use PhpGo\Ast\BinaryExpr;
+use PhpGo\Ast\BlockStmt;
 use PhpGo\Ast\DeclarationInterface;
 use PhpGo\Ast\ExpressionInterface;
 use PhpGo\Ast\ExprStmt;
+use PhpGo\Ast\FieldList;
+use PhpGo\Ast\FuncDecl;
 use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\GoObject;
 use PhpGo\Ast\Ident;
@@ -25,6 +28,7 @@ use PhpGo\Ast\UnaryExpr;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
 use PhpGo\Token\EqlType;
+use PhpGo\Token\FuncType;
 use PhpGo\Token\IdentType;
 use PhpGo\Token\ImportType;
 use PhpGo\Token\LparenType;
@@ -92,7 +96,7 @@ final class Parser
                     break;
                 // FIXME: 実装中だけ。トップレベルではこない。
                 case TokenType::T_RETURN:
-                    $statements[] = $this->parseReturnStmt($this->curToken);
+                    $statements[] = $this->parseReturnStmt();
                     break;
             }
             $this->nextToken();
@@ -263,7 +267,7 @@ final class Parser
     {
         $old = $this->inRhs;
         $this->inRhs = false;
-        $list = $this->parseExprList();
+        $list = $this->parseExprList(true);
         switch ($this->curToken->type->getType()) {
             case TokenType::T_DEFINE:
                 // lhs of a short variable declaration
