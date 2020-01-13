@@ -176,6 +176,18 @@ final class Parser
         return new ReturnStatement(x);
     }
 
+    private function parseBody(Scope $scope): BlockStmt
+    {
+        $lbrace = $this->expect(TokenType::T_LBRACE);
+        $this->topScope = $scope;
+        $this->openLabelScope();
+        $list = $this->parseStmtList();
+        $this->closeLabelScope();
+        $this->closeScope();
+        $rbrace = $this->expect2(TokenType::T_RBRACE);
+
+        return new BlockStmt($lbrace, $list, $rbrace);
+    }
     // ----------------------------------------------------------------------------
     // Common productions
 
