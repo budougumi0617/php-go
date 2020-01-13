@@ -41,6 +41,8 @@ abstract class TokenType
     public const T_ADD = "ADD"; // +
     public const T_SUB = "SUB"; // -
     public const T_MUL = 'MUL'; // *
+    public const T_QUO = 'QUO'; // /
+    public const T_REM = 'REM'; // %
 
 
     public const T_AND = 'AND'; // &
@@ -74,7 +76,12 @@ abstract class TokenType
     public const T_GTR = 'GTR'; // >
     public const T_NOT = 'NOT'; // !
 
-    public const T_DEFINE = "DEFINE";  // :=
+
+    public const T_NEQ = 'NEQ'; // !=
+    public const T_LEQ = 'LEQ'; // <=
+    public const T_GEQ = 'GEQ'; // >=
+    public const T_DEFINE = "DEFINE"; // :=
+    public const T_ELLIPSIS = 'ELLIPSIS'; // ...
 
     public const T_LPAREN = "LPAREN"; // ( Left parenthesis.
     public const T_LBRACK = "LBRACK"; // [ Left bracket.

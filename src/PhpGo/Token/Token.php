@@ -54,4 +54,46 @@ class Token
             ];
         return self::$keywords;
     }
+
+    /**
+     * A set of constants for precedence-based expression parsing.
+     * Non-operators have lowest precedence, followed by operators
+     * starting with precedence 1 up to unary operators. The highest
+     * precedence serves as "catch-all" precedence for selector,
+     * indexing, and other operator and delimiter tokens.
+     */
+    public const LOWEST_PREC = 0; // non-operators
+    public const UNARY_PREC = 6;
+    public const HIGHEST_PREC = 7;
+
+    public function precedence(): int
+    {
+        switch ($this->type->getType()) {
+            case TokenType::T_LOR:
+                return 1;
+            case TokenType::T_LAND:
+                return 2;
+            case TokenType::T_EQL:
+            case TokenType::T_NEQ:
+            case TokenType::T_LSS:
+            case TokenType::T_LEQ:
+            case TokenType::T_GTR:
+            case TokenType::T_GEQ:
+                return 3;
+            case TokenType::T_ADD:
+            case TokenType::T_SUB:
+            case TokenType::T_OR:
+            case TokenType::T_XOR:
+                return 4;
+            case TokenType::T_MUL:
+            case TokenType::T_QUO:
+            case TokenType::T_REM:
+            case TokenType::T_SHL:
+            case TokenType::T_SHR:
+            case TokenType::T_AND:
+            case TokenType::T_AND_NOT:
+                return 5;
+        }
+        return self::LOWEST_PREC;
+    }
 }
