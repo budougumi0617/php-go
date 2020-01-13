@@ -224,7 +224,12 @@ final class Parser
         // }
         //
         $ident = $this->parseIdent();
+
         // params, results := p.parseSignature(scope)
+
+        // FIXME: skip parameters and results
+        $this->expect(TokenType::T_LPAREN);
+        $this->expect(TokenType::T_RPAREN);
 
         $body = null;
         if ($this->curToken->type->getType() == TokenType::T_LBRACE) {
