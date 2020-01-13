@@ -105,7 +105,10 @@ final class Parser
         }
 
         $program = new Program($statements);
-        $program->name = $name;
+        if (!is_null($name)) {
+            $program->name = $name;
+        }
+
         return $program;
     }
 
@@ -887,7 +890,7 @@ final class Parser
                     $this->nextToken();
                     break;
                 default:
-                    throw new BadMethodCallException('expected ";", actual '. $this->curToken->string());
+                    throw new BadMethodCallException('expected ";", actual ' . $this->curToken->string());
                 // p.advance(stmtStart) // TODO: implement advance method.
             }
         }
