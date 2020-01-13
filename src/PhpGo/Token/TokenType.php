@@ -53,6 +53,12 @@ abstract class TokenType
     public const T_SHR_ASSIGN = 'SHR_ASSIGN'; // >>=
     public const T_AND_NOT_ASSIGN = 'AND_NOT_ASSIGN'; // &^=
 
+    public const T_LAND = 'LAND'; // &&
+    public const T_LOR = 'LOR'; // ||
+    public const T_ARROW = 'ARROW'; // <-
+    public const T_INC = 'INC'; // ++
+    public const T_DEC = 'DEC'; // --
+
     public const T_DEFINE = "DEFINE";  // :=
 
     public const T_LPAREN = "LPAREN"; // ( Left parenthesis.
