@@ -29,6 +29,7 @@ use PhpGo\Token\IdentType;
 use PhpGo\Token\ImportType;
 use PhpGo\Token\LparenType;
 use PhpGo\Token\PeriodType;
+use PhpGo\Token\RangeType;
 use PhpGo\Token\RparenType;
 use PhpGo\Token\StringType;
 use PhpGo\Token\Token;
@@ -182,12 +183,11 @@ final class Parser
     private function parseExprList(bool $lhs): array // array<ast.Expr>
     {
         $list = [];
-        throw new BadMethodCallException('');
-        //	list = append(list, p.checkExpr(p.parseExpr(lhs)))
-        //	for p.tok == token.COMMA {
-        //		p.next()
-        //		list = append(list, p.checkExpr(p.parseExpr(lhs)))
-        //	}
+        // list = append(list, p.checkExpr(p.parseExpr(lhs)))
+        // for p.tok == token.COMMA {
+        //   p.next()
+        //   list = append(list, p.checkExpr(p.parseExpr(lhs)))
+        // }
         return $list;
     }
 
@@ -389,32 +389,32 @@ final class Parser
      * @param ExpressionInterface $x
      * @return ExpressionInterface
      */
-    private function checExpr(ExpressionInterface $x): ExpressionInterface
+    private function checkExpr(ExpressionInterface $x): ExpressionInterface
     {
         $x = $this->unparen($x);
         switch (true) {
-            //	case *ast.BadExpr:
+            // case *ast.BadExpr:
             case $x instanceof Ident:
-                //	case *ast.BasicLit:
-                //	case *ast.FuncLit:
-                //	case *ast.CompositeLit:
+                // case *ast.BasicLit:
+                // case *ast.FuncLit:
+                // case *ast.CompositeLit:
             case $x instanceof ParenExpr:
                 throw new UnexpectedValueException("checkExpr: unreachable {$x}");
                 break;
-            //	case *ast.SelectorExpr:
+            // case *ast.SelectorExpr:
             case $x instanceof IndexExpr:
-                //	case *ast.SliceExpr:
-                //	case *ast.TypeAssertExpr:
+                // case *ast.SliceExpr:
+                // case *ast.TypeAssertExpr:
                 // If t.Type == nil we have a type assertion of the form
                 // y.(type), which is only allowed in type switch expressions.
                 // It's hard to exclude those but for the case where we are in
                 // a type switch. Instead be lenient and test this in the type
                 // checker.
                 break;
-            //	case *ast.CallExpr:
-            //	case *ast.StarExpr:
-            //	case *ast.UnaryExpr:
-            //	case *ast.BinaryExpr:
+            // case *ast.CallExpr:
+            // case *ast.StarExpr:
+            // case *ast.UnaryExpr:
+            // case *ast.BinaryExpr:
             default:
                 // all other nodes are not proper expressions
                 // p.errorExpected(x.Pos(), "expression")
@@ -446,7 +446,7 @@ final class Parser
         //    res = token.Pos(p.file.Base() + p.file.Size()) // EOF position
         //}
         //}()
-        //	_ = p.file.Offset(pos) // trigger a panic if position is out-of-range
+        // _ = p.file.Offset(pos) // trigger a panic if position is out-of-range
         return $pos;
     }
 
@@ -599,7 +599,7 @@ final class Parser
                     // TODO: pos := p.pos
                     $this->nextToken();
                     // y = []ast.Expr{&ast.UnaryExpr{OpPos: pos, Op: token.RANGE, X: p.parseRhs()}}
-                    $y[] = new UnaryExpr(new Token(TokenType::T_RANGE, ''), $this->parseRhs());
+                    $y[] = new UnaryExpr(new Token(new RangeType(), ''), $this->parseRhs());
                     $isRange = true;
                 } else {
                     $y = $this->parseRhsList();
@@ -621,36 +621,36 @@ final class Parser
                 // labeled statement
                 // colon := p.pos
                 $this->nextToken();
-                //		if label, isIdent := x[0].(*ast.Ident); mode == labelOk && isIdent {
-                //			// Go spec: The scope of a label is the body of the function
-                //			// in which it is declared and excludes the body of any nested
-                //			// function.
-                //			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
-                //			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
-                //			return stmt, false
-                //		}
-                //		// The label declaration typically starts at x[0].Pos(), but the label
-                //		// declaration may be erroneous due to a token after that position (and
-                //		// before the ':'). If SpuriousErrors is not set, the (only) error
-                //		// reported for the line is the illegal label error instead of the token
-                //		// before the ':' that caused the problem. Thus, use the (latest) colon
-                //		// position for error reporting.
-                //		p.error(colon, "illegal label declaration")
-                //		return &ast.BadStmt{From: x[0].Pos(), To: colon + 1}, false
+                // if label, isIdent := x[0].(*ast.Ident); mode == labelOk && isIdent {
+                //   // Go spec: The scope of a label is the body of the function
+                //   // in which it is declared and excludes the body of any nested
+                //   // function.
+                //   stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
+                //   p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
+                //   return stmt, false
+                // }
+                // The label declaration typically starts at x[0].Pos(), but the label
+                // declaration may be erroneous due to a token after that position (and
+                // before the ':'). If SpuriousErrors is not set, the (only) error
+                // reported for the line is the illegal label error instead of the token
+                // before the ':' that caused the problem. Thus, use the (latest) colon
+                // position for error reporting.
+                // p.error(colon, "illegal label declaration")
+                // return &ast.BadStmt{From: x[0].Pos(), To: colon + 1}, false
                 throw new BadMethodCallException("parseSimpleStmt: not implementation COLON yet.");
             case TokenType::T_ARROW:
                 // send statement
-                //		arrow := p.pos
-                //		p.next()
-                //		y := p.parseRhs()
-                //		return &ast.SendStmt{Chan: x[0], Arrow: arrow, Value: y}, false
+                // arrow := p.pos
+                // p.next()
+                // y := p.parseRhs()
+                // return &ast.SendStmt{Chan: x[0], Arrow: arrow, Value: y}, false
                 throw new BadMethodCallException("parseSimpleStmt: not implementation ALLOW yet.");
             case TokenType::T_INC:
             case TokenType::T_DEC:
                 // increment or decrement
-                //		s := &ast.IncDecStmt{X: x[0], TokPos: p.pos, Tok: p.tok}
-                //		p.next()
-                //		return s, false
+                // s := &ast.IncDecStmt{X: x[0], TokPos: p.pos, Tok: p.tok}
+                // p.next()
+                // return s, false
                 throw new BadMethodCallException("parseSimpleStmt: not implementation INC or DEC yet.");
         }
         // expression
