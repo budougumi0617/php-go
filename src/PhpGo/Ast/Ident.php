@@ -2,13 +2,15 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
+
 /**
  * Class Ident
  * @package PhpGo\Ast
  *
  * https://godoc.org/go/ast#Ident
  */
-final class Ident
+final class Ident implements NodeInterface
 {
     public int $namePos; // identifier position
     public string $name; // identifier name
@@ -20,5 +22,18 @@ final class Ident
         $this->name = $name;
         // FIXME: need to keep position.
         $this->namePos = 0;
+    }
+
+    public function tokenLiteral(): string
+    {
+        // TODO: Implement tokenLiteral() method.
+    }
+
+    public static function castIdent(NodeInterface $obj): Ident
+    {
+        if (!($obj instanceof Ident)) {
+            throw new InvalidArgumentException("{$obj} is not instance of Ident");
+        }
+        return $obj;
     }
 }
