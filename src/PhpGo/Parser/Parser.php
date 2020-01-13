@@ -3,11 +3,15 @@
 namespace PhpGo\Parser;
 
 use PhpGo\Ast\DeclarationInterface;
+use PhpGo\Ast\ExpressionInterface;
 use PhpGo\Ast\GenDecl;
+use PhpGo\Ast\GoObject;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
+use PhpGo\Ast\ParenExpr;
 use PhpGo\Ast\Program;
 use PhpGo\Ast\ReturnStatement;
+use PhpGo\Ast\Scope;
 use PhpGo\Ast\StatementInterface;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Token\EofType;
@@ -33,6 +37,9 @@ final class Parser
     private ?Token $curToken;
     private ?Token $peekToken;
     private bool $inRhs; // if set, the parser is parsing a rhs expression
+    private ?Scope $topScope;
+    /** @var array<GoObject> * */
+    private array $unresolved;
 
 
     public function __construct(Lexer $l)
@@ -41,6 +48,9 @@ final class Parser
         $this->peekToken = null;
         $this->curToken = null;
         $this->inRhs = false;
+        $this->topScope = null;
+        $this->unresolved = [];
+
         // initialize $curToken, $peekToken.
         $this->nextToken();
         $this->nextToken();
@@ -156,7 +166,7 @@ final class Parser
 
     // ----------------------------------------------------------------------------
     // Common productions
-    
+
     // If lhs is set, result list elements which are identifiers are not resolved.
     private function parseExprList(bool $lhs): array // array<ast.Expr>
     {
@@ -169,33 +179,36 @@ final class Parser
         return $list;
     }
 
-    //func (p *parser) parseLhsList() []ast.Expr {
-    //	old := p.inRhs
-    //	p.inRhs = false
-    //	list := p.parseExprList(true)
-    //	switch p.tok {
-    //	case token.DEFINE:
-    //		// lhs of a short variable declaration
-    //		// but doesn't enter scope until later:
-    //		// caller must call p.shortVarDecl(p.makeIdentList(list))
-    //		// at appropriate time.
-    //	case token.COLON:
-    //		// lhs of a label declaration or a communication clause of a select
-    //		// statement (parseLhsList is not called when parsing the case clause
-    //		// of a switch statement):
-    //		// - labels are declared by the caller of parseLhsList
-    //		// - for communication clauses, if there is a stand-alone identifier
-    //		//   followed by a colon, we have a syntax error; there is no need
-    //		//   to resolve the identifier in that case
-    //	default:
-    //		// identifiers must be declared elsewhere
-    //		for _, x := range list {
-    //			p.resolve(x)
-    //		}
-    //	}
-    //	p.inRhs = old
-    //	return list
-    //}
+    private function parseLhsList(): array
+    {
+        $old = $this->inRhs;
+        $this->inRhs = false;
+        $list = $this->parseExprList();
+        switch ($this->curToken->type->getType()) {
+            case TokenType::T_DEFINE:
+                // lhs of a short variable declaration
+                // but doesn't enter scope until later:
+                // caller must call p.shortVarDecl(p.makeIdentList(list))
+                // at appropriate time.
+                break;
+            case TokenType::T_COLON:
+                // lhs of a label declaration or a communication clause of a select
+                // statement (parseLhsList is not called when parsing the case clause
+                // of a switch statement):
+                // - labels are declared by the caller of parseLhsList
+                // - for communication clauses, if there is a stand-alone identifier
+                //   followed by a colon, we have a syntax error; there is no need
+                //   to resolve the identifier in that case
+                break;
+            default:
+                // identifiers must be declared elsewhere
+                foreach ($list as $x) {
+                    $this->resolve($x);
+                }
+        }
+        $this->inRhs = $old;
+        return $list;
+    }
 
     private function parseRhsList(): array // array<ast.Expr>
     {
