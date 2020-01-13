@@ -98,6 +98,8 @@ final class Parser
                 case TokenType::T_RETURN:
                     $statements[] = $this->parseReturnStmt();
                     break;
+                case TokenType::T_FUNC:
+                    $statements[] = $this->parseFuncDecl();
             }
             $this->nextToken();
         }
