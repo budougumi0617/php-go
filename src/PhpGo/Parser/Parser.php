@@ -796,4 +796,24 @@ final class Parser
         $this->nextToken();
         return 0; // return pos
     }
+
+    /**
+     * expect2 is like expect, but it returns an invalid position
+     * if the expected token is not found.
+     *
+     * @param Token $tok
+     * @return int
+     */
+    private function expect2(Token $tok): int
+    {
+        $pos = -1;
+        if ($this->curToken === $tok) {
+            // pos = p.pos
+            $pos = -1;
+        } else {
+            throw new UnexpectedValueException("expect2: unexpected {$tok->string()}");
+        }
+        $this->nextToken(); // make progress
+        return $pos;
+    }
 }
