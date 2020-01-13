@@ -3,6 +3,7 @@
 namespace PhpGo\Token;
 
 use UnexpectedValueException;
+
 class Token
 {
     public TokenType $type;

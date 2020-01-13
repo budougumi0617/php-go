@@ -509,12 +509,12 @@ final class Parser
         $x = $this->parseUnaryExpr($lhs);
         while (true) {
             $arr = $this->tokPrec(); // array [Token, int]
-            $op = $arr[0];
+            $op = Token::castToken($arr[0]);
             $oprec = $arr[1];
             if ($oprec < $prec1) {
                 return $x;
             }
-            $pos = $this->expect($op);
+            $pos = $this->expect($op->type->getType());
             if ($lhs) {
                 $this->resolve($x);
                 $lhs = false;
