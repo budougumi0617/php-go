@@ -91,11 +91,29 @@ EOT;
 //        $this->assertEquals('main', $program->name->name);
 //    }
 
-    public function test_parseProgram_hello_world(): void
+    public function test_parseProgram_easy_func(): void
     {
         $input = <<<EOT
 package main
 	
+func main(){
+	msg := "hello world"
+}
+EOT;
+        $parser = new Parser(new Lexer($input));
+        $program = $parser->parseProgram();
+        $this->assertNotNull($program);
+        $this->assertEquals('main', $program->name->name);
+        $this->assertEquals(TokenType::T_FUNC, $program->statements[0]->type->getType());
+        $this->assertEquals('msg', $program->statements[0]->body->list[0]->lhs[0]->name);
+        $this->assertEquals('"hello world"', $program->statements[0]->body->list[0]->rhs[0]->value);
+    }
+
+    public function test_parseProgram_hello_world(): void
+    {
+        $input = <<<EOT
+package main
+
 func main(){
 	msg := "hello world"
 	print(msg)
