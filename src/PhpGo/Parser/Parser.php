@@ -188,6 +188,59 @@ final class Parser
 
         return new BlockStmt($lbrace, $list, $rbrace);
     }
+
+    private function parseFuncDecl(): FuncDecl
+    {
+        // doc := p.leadComment
+        $scope = new Scope($this->topScope);
+
+
+        /** @var FieldList $recv */
+        $recv = null;
+
+        // if p.tok == token.LPAREN {
+        //        recv = p.parseParameters(scope, false)
+        // }
+        //
+        $ident = $this->parseIdent();
+        //
+        // params, results := p.parseSignature(scope)
+
+        $body = null;
+        if ($this->curToken->type->getType() == TokenType::T_LBRACE) {
+            $body = $this->parseBody($scope);
+            $this->expectSemi();
+        } elseif ($this->curToken->type->getType() == TokenType::T_SEMICOLON) {
+            $this->nextToken();
+            if ($this->curToken->type->getType() == TokenType::T_LBRACE) {
+                // opening { of function declaration on next line
+                echo 'parseFuncDecl: unexpected semicolon or newline before {';
+                $body = $this->parseBody($scope);
+                $this->expectSemi();
+            }
+        } else {
+            $this->expectSemi();
+        }
+        $decl = new FuncDecl();
+        $decl->body = $body;
+        $decl->name = $ident;
+        $decl->type = new FuncType();
+        if (is_null(recv)) {
+            // Go spec: The scope of an identifier denoting a constant, type,
+            // variable, or function (but not method) declared at top level
+            // (outside any function) is the package block.
+            //
+            // init() functions cannot be referred to and there may
+            // be more than one - don't put them in the pkgScope
+            if ($ident->name != "init") {
+                // TODO: implement declare.
+                // p.declare(decl, nil, p.pkgScope, ast.Fun, ident)
+                echo "declare";
+            }
+        }
+        return $decl;
+    }
+
     // ----------------------------------------------------------------------------
     // Common productions
 
