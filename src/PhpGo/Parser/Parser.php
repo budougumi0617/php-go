@@ -252,6 +252,25 @@ final class Parser
     //}
 
     /**
+     * If x is of the form (T), unparen returns unparen(T), otherwise it returns x.
+     *
+     * @param ExpressionInterface $x
+     * @return ExpressionInterface
+     */
+    private function unparen(ExpressionInterface $x): ExpressionInterface
+    {
+        if ($x instanceof ParenExpr) {
+            $p = ParenExpr::castParentExpr($x);
+            $x = $this->unparen($p->x);
+        }
+
+        return $x;
+    }
+
+    // ----------------------------------------------------------------------------
+    // Scoping support
+
+    /**
      * If x is an identifier, tryResolve attempts to resolve x by looking up
      * the object it denotes. If no object is found and collectUnresolved is
      * set, x is marked as unresolved and collected in the list of unresolved
