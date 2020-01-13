@@ -880,7 +880,7 @@ final class Parser
                     $this->nextToken();
                     break;
                 default:
-                    throw new BadMethodCallException('expected ";"');
+                    throw new BadMethodCallException('expected ";", actual '. $this->curToken->string());
                 // p.advance(stmtStart) // TODO: implement advance method.
             }
         }
@@ -914,7 +914,7 @@ final class Parser
     {
         // pos := p.pos // TODO: 位置情報を戻り値に設定する。
         if ($this->curToken->type->getType() !== $tokType) { // p.tok != tok
-            throw new \UnexpectedValueException("expect {$tokType}, but {$this->curToken->string()}");
+            throw new UnexpectedValueException("expect {$tokType}, but {$this->curToken->string()}");
         }
         $this->nextToken();
         return 0; // return pos
