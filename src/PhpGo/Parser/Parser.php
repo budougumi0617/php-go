@@ -268,11 +268,12 @@ final class Parser
     private function parseExprList(bool $lhs): array // array<ast.Expr>
     {
         $list = [];
-        // list = append(list, p.checkExpr(p.parseExpr(lhs)))
-        // for p.tok == token.COMMA {
-        //   p.next()
-        //   list = append(list, p.checkExpr(p.parseExpr(lhs)))
-        // }
+        $list[] = $this->checkExpr($this->parseExpr($lhs));
+        while ($this->curToken->type->getType() == TokenType::T_COMMA) {
+            $this->nextToken();
+            $list[] = $this->checkExpr($this->parseExpr($lhs));
+
+        }
         return $list;
     }
 
