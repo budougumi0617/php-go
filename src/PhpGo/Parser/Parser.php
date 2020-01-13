@@ -5,6 +5,7 @@ namespace PhpGo\Parser;
 use BadMethodCallException;
 use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BadExpr;
+use PhpGo\Ast\BinaryExpr;
 use PhpGo\Ast\DeclarationInterface;
 use PhpGo\Ast\ExpressionInterface;
 use PhpGo\Ast\ExprStmt;
@@ -231,6 +232,83 @@ final class Parser
         $list = $this->parseExprList(false);
         $this->inRhs = $old;
         return $list;
+    }
+
+    /**
+     * If lhs is set and the result is an identifier, it is not resolved.
+     *
+     * @param bool $lhs
+     * @return ExpressionInterface
+     */
+    private function parseUnaryExpr(bool $lhs): ExpressionInterface
+    {
+        switch ($this->curToken->type->getType()) {
+            case TokenType::T_ADD:
+            case TokenType::T_SUB:
+            case TokenType::T_NOT:
+            case TokenType::T_XOR:
+            case TokenType::T_AND:
+                // pos, op := p.pos, p.tok
+                $op = $this->curToken;
+                $this->nextToken();
+                // x := p.parseUnaryExpr(false)
+                // return &ast.UnaryExpr{OpPos: pos, Op: op, X: p.checkExpr(x)}
+                throw new BadMethodCallException('parseUnaryExpr is not implementation "ADD", "SUB", etc... yet');
+            case TokenType::T_ARROW:
+                // channel type or receive expression
+                // arrow := p.pos
+                // p.next()
+                //
+                // If the next token is token.CHAN we still don't know if it
+                // is a channel type or a receive operation - we only know
+                // once we have found the end of the unary expression. There
+                // are two cases:
+                //
+                //   <- type  => (<-type) must be channel type
+                //   <- expr  => <-(expr) is a receive from an expression
+                //
+                // In the first case, the arrow must be re-associated with
+                // the channel type parsed already:
+                //
+                //   <- (chan type)    =>  (<-chan type)
+                //   <- (chan<- type)  =>  (<-chan (<-type))
+                //
+                // x := p.parseUnaryExpr(false)
+                //
+                // determine which case we have
+                // if typ, ok := x.(*ast.ChanType); ok {
+                // (<-type)
+                //
+                // re-associate position info and <-
+                // dir := ast.SEND
+                // for ok && dir == ast.SEND {
+                // if typ.Dir == ast.RECV {
+                // error: (<-type) is (<-(<-chan T))
+                // p.errorExpected(typ.Arrow, "'chan'")
+                // }
+                // arrow, typ.Begin, typ.Arrow = typ.Arrow, arrow, arrow
+                // dir, typ.Dir = typ.Dir, ast.RECV
+                // typ, ok = typ.Value.(*ast.ChanType)
+                // }
+                // if dir == ast.SEND {
+                //    p.errorExpected(arrow, "channel type")
+                // }
+                //
+                // return x
+                // }
+                //
+                // // <-(expr)
+                // return &ast.UnaryExpr{OpPos: arrow, Op: token.ARROW, X: p.checkExpr(x)}
+                throw new BadMethodCallException('parseUnaryExpr is not implementation "ARROW" yet');
+            case TokenType::T_MUL:
+                // pointer type or unary "*" expression
+                // pos := p.pos
+                // p.next()
+                // x := p.parseUnaryExpr(false)
+                // return &ast.StarExpr{Star: pos, X: p.checkExprOrType(x)}
+                throw new BadMethodCallException('parseUnaryExpr is not implementation "MUL" yet');
+        }
+        return $this->parsePrimaryExpr($lhs);
     }
 
     /**
