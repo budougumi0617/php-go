@@ -351,7 +351,7 @@ final class Parser
                 }
                 return $x;
             case TokenType::T_STRING:
-            // case token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+                // case token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
                 $x = new BasicLit($this->curToken);
                 $this->nextToken();
                 return $x;
@@ -381,7 +381,7 @@ final class Parser
         //  p.advance(stmtStart)
         //  return &ast.BadExpr{From: pos, To: p.pos}
     }
-    
+
     /**
      * If lhs is set and the result is an identifier, it is not resolved.
      *
@@ -390,8 +390,22 @@ final class Parser
      */
     private function parsePrimaryExpr(bool $lhs): ExpressionInterface
     {
-        throw new BadMethodCallException('parsePrimaryExpr is not implementation yet');
-        // TODO: https://github.com/golang/go/blob/641e61db57f176e33828ed5354810fa3f13ac76d/src/go/parser/parser.go#L1473
+        $x = $this->parseOperand($lhs);
+
+        while (true) {
+            switch ($this->curToken->type->getType()) {
+                case TokenType::T_PERIOD:
+                case TokenType::T_LBRACK:
+                case TokenType::T_LPAREN:
+                case TokenType::T_LBRACE:
+                    throw new BadMethodCallException('parsePrimaryExpr is not implementation yet');
+                default:
+                    goto L;
+            }
+            $lhs = false; // no need to try to resolve again
+        }
+        L:
+        return $x;
     }
 
     /**
