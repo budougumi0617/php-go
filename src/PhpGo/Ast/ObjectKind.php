@@ -29,6 +29,11 @@ final class ObjectKind
         return $this->kind;
     }
 
+    public static function kindBad():ObjectKind
+    {
+        return new ObjectKind(self::BAD);
+    }
+
     public static function kindVar():ObjectKind
     {
         return new ObjectKind(self::VAR);

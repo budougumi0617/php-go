@@ -12,9 +12,9 @@ final class GoObject
 {
     public ObjectKind $kind;
     public string $name; // declared name
-    // Decl interface{} // corresponding Field, XxxSpec, FuncDecl, LabeledStmt, AssignStmt, Scope; or nil
-    // Data interface{} // object-specific data; or nil
-    // Type interface{} // placeholder for type information; may be nil
+    public $decl; // corresponding Field, XxxSpec, FuncDecl, LabeledStmt, AssignStmt, Scope; or nil
+    public $data; // object-specific data; or nil
+    public $type; // placeholder for type information; may be nil
 
     // The unresolved object is a sentinel to mark identifiers that have been added
     // to the list of unresolved identifiers. The sentinel is only used for verifying
@@ -33,12 +33,13 @@ final class GoObject
     {
         $this->kind = $kind;
         $this->name = $name;
+        $this->decl= null;
+        $this->data = null;
+        $this->type = null;
     }
 
     public static function unresolovedObject(): GoObject
     {
-        $obj = new GoObject();
-        $obj->name = self::UNRESOLVED_OBJECT;
-        return $obj;
+        return new GoObject(ObjectKind::kindBad(), self::UNRESOLVED_OBJECT);
     }
 }
