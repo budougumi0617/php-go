@@ -240,6 +240,18 @@ final class Parser
      * @param bool $lhs
      * @return ExpressionInterface
      */
+    private function parsePrimaryExpr(bool $lhs): ExpressionInterface
+    {
+        throw new BadMethodCallException('parsePrimaryExpr is not implementation yet');
+        // TODO: https://github.com/golang/go/blob/641e61db57f176e33828ed5354810fa3f13ac76d/src/go/parser/parser.go#L1473
+    }
+
+    /**
+     * If lhs is set and the result is an identifier, it is not resolved.
+     *
+     * @param bool $lhs
+     * @return ExpressionInterface
+     */
     private function parseUnaryExpr(bool $lhs): ExpressionInterface
     {
         switch ($this->curToken->type->getType()) {
