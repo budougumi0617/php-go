@@ -250,6 +250,31 @@ final class Parser
     //	}
     //	return x
     //}
+    /**
+     * safePos returns a valid file position for a given position: If pos
+     * is valid to begin with, safePos returns pos. If pos is out-of-range,
+     * safePos returns the EOF position.
+     *
+     * This is hack to work around "artificial" end positions in the AST which
+     * are computed by adding 1 to (presumably valid) token positions. If the
+     * token positions are invalid due to parse errors, the resulting end position
+     * may be past the file's EOF position, which would lead to panics if used
+     * later on.
+     *
+     * @param int $pos
+     * @return int
+     *
+     */
+    private function safePos(int $pos): int
+    {
+        //        defer func() {
+        //if recover() != nil {
+        //    res = token.Pos(p.file.Base() + p.file.Size()) // EOF position
+        //}
+        //}()
+        //	_ = p.file.Offset(pos) // trigger a panic if position is out-of-range
+        return $pos;
+    }
 
     /**
      * If x is of the form (T), unparen returns unparen(T), otherwise it returns x.
