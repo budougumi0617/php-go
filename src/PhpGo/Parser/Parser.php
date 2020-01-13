@@ -2,14 +2,17 @@
 
 namespace PhpGo\Parser;
 
+use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BadExpr;
 use PhpGo\Ast\DeclarationInterface;
 use PhpGo\Ast\ExpressionInterface;
+use PhpGo\Ast\ExprStmt;
 use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\GoObject;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Ast\IndexExpr;
+use PhpGo\Ast\ObjectKind;
 use PhpGo\Ast\ParenExpr;
 use PhpGo\Ast\Program;
 use PhpGo\Ast\ReturnStatement;
@@ -182,6 +185,9 @@ final class Parser
         return $list;
     }
 
+    /**
+     * @return array<ExpressionInterface>
+     */
     private function parseLhsList(): array
     {
         $old = $this->inRhs;
@@ -349,6 +355,44 @@ final class Parser
     private function resolve(ExpressionInterface $x): void
     {
         $this->tryResolve($x, true);
+    }
+
+    /**
+     * @param AssignStmt $decl
+     * @param array<ExpressionInterface> $list
+     */
+    private function shortVarDecl(AssignStmt $decl, array $list): void
+    {
+        // Go spec: A short variable declaration may redeclare variables
+        // provided they were originally declared in the same block with
+        // the same type, and at least one of the non-blank variables is new.
+        $n = 0; // number of new variables
+        foreach ($list as $x) {
+            if ($x instanceof Ident) {
+                $ident = Ident::castIdent($x);
+                if ($ident->object == null) {
+                    throw new UnexpectedValueException("identifier already declared or resolved");
+                }
+                $obj = new GoObject(ObjectKind::kindVar(), $ident->name);
+                // remember corresponding assignment for other tools
+                $obj->decl = $decl;
+                $ident->object = $obj;
+                if ($ident->name != '_') {
+                    $alt = $this->topScope->insert($obj);
+                    if (!is_null($alt)) {
+                        $ident->object = $alt; // redeclaration
+                    } else {
+                        $n++; // new declaration
+                    }
+                }
+            } else {
+                throw new UnexpectedValueException('shortVarDecl: identifier on left side of :=');
+            }
+        }
+        // if n == 0 && p.mode&DeclarationErrors != 0 {
+        if ($n == 0) {
+            throw new UnexpectedValueException('shortVarDecl: no new variables on left side of :=');
+        }
     }
 
     // ----------------------------------------------------------------------------
