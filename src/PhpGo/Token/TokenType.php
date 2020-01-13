@@ -35,9 +35,23 @@ abstract class TokenType
     // literal_end
 
     // operator_beg
+    // Operators and delimiters
     public const T_ASSIGN = "ASSIGN"; // =
     public const T_ADD = "ADD"; // +
     public const T_SUB = "SUB"; // -
+
+    public const T_ADD_ASSIGN = 'ADD_ASSIGN'; // +=
+    public const T_SUB_ASSIGN = 'SUB_ASSIGN'; // -=
+    public const T_MUL_ASSIGN = 'MUL_ASSIGN'; // *=
+    public const T_QUO_ASSIGN = 'QUO_ASSIGN'; // /=
+    public const T_REM_ASSIGN = 'REM_ASSIGN'; // %=
+
+    public const T_AND_ASSIGN = 'AND_ASSIGN'; // &=
+    public const T_OR_ASSIGN = 'OR_ASSIGN';   // |=
+    public const T_XOR_ASSIGN = 'XOR_ASSIGN'; // ^=
+    public const T_SHL_ASSIGN = 'SHL_ASSIGN'; // <<=
+    public const T_SHR_ASSIGN = 'SHR_ASSIGN'; // >>=
+    public const T_AND_NOT_ASSIGN = 'AND_NOT_ASSIGN'; // &^=
 
     public const T_DEFINE = "DEFINE";  // :=
 
