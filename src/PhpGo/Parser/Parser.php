@@ -231,6 +231,17 @@ final class Parser
         return $list;
     }
 
+    /**
+     * @return array [Token, int]
+     */
+    private function tokPrec(): array
+    {
+        $tok = $this->curToken;
+        if ($this->inRhs && $tok->type->getType() == TokenType::T_ASSIGN) {
+            $tok = new Token(new EqlType(), '');
+        }
+        return [$tok, $tok->precedence()];
+    }
     private function parseRhs(): ExpressionInterface
     {
         $old = $this->inRhs;
