@@ -2,12 +2,14 @@
 
 namespace PhpGo\Parser;
 
+use PhpGo\Ast\BadExpr;
 use PhpGo\Ast\DeclarationInterface;
 use PhpGo\Ast\ExpressionInterface;
 use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\GoObject;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
+use PhpGo\Ast\IndexExpr;
 use PhpGo\Ast\ParenExpr;
 use PhpGo\Ast\Program;
 use PhpGo\Ast\ReturnStatement;
@@ -23,6 +25,7 @@ use PhpGo\Token\RparenType;
 use PhpGo\Token\StringType;
 use PhpGo\Token\Token;
 use PhpGo\Token\TokenType;
+use UnexpectedValueException;
 
 /**
  * Class Parser
@@ -219,37 +222,47 @@ final class Parser
         return $list;
     }
 
+    /**
+     * checkExpr checks that x is an expression (and not a type).
+     *
+     * @param ExpressionInterface $x
+     * @return ExpressionInterface
+     */
+    private function checExpr(ExpressionInterface $x): ExpressionInterface
+    {
+        $x = $this->unparen($x);
+        switch (true) {
+            //	case *ast.BadExpr:
+            case $x instanceof Ident:
+                //	case *ast.BasicLit:
+                //	case *ast.FuncLit:
+                //	case *ast.CompositeLit:
+            case $x instanceof ParenExpr:
+                throw new UnexpectedValueException("checkExpr: unreachable {$x}");
+                break;
+            //	case *ast.SelectorExpr:
+            case $x instanceof IndexExpr:
+                //	case *ast.SliceExpr:
+                //	case *ast.TypeAssertExpr:
+                // If t.Type == nil we have a type assertion of the form
+                // y.(type), which is only allowed in type switch expressions.
+                // It's hard to exclude those but for the case where we are in
+                // a type switch. Instead be lenient and test this in the type
+                // checker.
+                break;
+            //	case *ast.CallExpr:
+            //	case *ast.StarExpr:
+            //	case *ast.UnaryExpr:
+            //	case *ast.BinaryExpr:
+            default:
+                // all other nodes are not proper expressions
+                // p.errorExpected(x.Pos(), "expression")
+                // x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
+                $x = new BadExpr();
+        }
+        return $x;
+    }
 
-    // // checkExpr checks that x is an expression (and not a type).
-    //func (p *parser) checkExpr(x ast.Expr) ast.Expr {
-    //	switch unparen(x).(type) {
-    //	case *ast.BadExpr:
-    //	case *ast.Ident:
-    //	case *ast.BasicLit:
-    //	case *ast.FuncLit:
-    //	case *ast.CompositeLit:
-    //	case *ast.ParenExpr:
-    //		panic("unreachable")
-    //	case *ast.SelectorExpr:
-    //	case *ast.IndexExpr:
-    //	case *ast.SliceExpr:
-    //	case *ast.TypeAssertExpr:
-    //		// If t.Type == nil we have a type assertion of the form
-    //		// y.(type), which is only allowed in type switch expressions.
-    //		// It's hard to exclude those but for the case where we are in
-    //		// a type switch. Instead be lenient and test this in the type
-    //		// checker.
-    //	case *ast.CallExpr:
-    //	case *ast.StarExpr:
-    //	case *ast.UnaryExpr:
-    //	case *ast.BinaryExpr:
-    //	default:
-    //		// all other nodes are not proper expressions
-    //		p.errorExpected(x.Pos(), "expression")
-    //		x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
-    //	}
-    //	return x
-    //}
     /**
      * safePos returns a valid file position for a given position: If pos
      * is valid to begin with, safePos returns pos. If pos is out-of-range,
@@ -445,12 +458,12 @@ final class Parser
             switch ($this->curToken->type->getType()) {
                 case TokenType::T_COMMA:
                     // permit a ',' instead of a ';' but complain
-                    throw new \UnexpectedValueException('expected ";"');
+                    throw new UnexpectedValueException('expected ";", but ","');
                 case TokenType::T_SEMICOLON:
                     $this->nextToken();
                     break;
                 default:
-                    throw new \UnexpectedValueException('expected ";"');
+                    throw new UnexpectedValueException('expected ";"');
                 // p.advance(stmtStart) // TODO: implement advance method.
             }
         }
