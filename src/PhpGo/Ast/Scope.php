@@ -10,17 +10,17 @@ namespace PhpGo\Ast;
  */
 final class Scope
 {
-    public Scope $outer;
+    public ?Scope $outer;
     /** @var array<string, GoObject> $objects * */
     public array $objects;
 
     /**
      * Scope constructor.
-     * @param Scope $outer
+     * @param Scope|null $outer
      *
      * port from go/ast/Scope.NewScope
      */
-    public function __construct(Scope $outer)
+    public function __construct(?Scope $outer)
     {
         $this->outer = $outer;
         $this->objects = [];
