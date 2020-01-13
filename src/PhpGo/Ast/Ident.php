@@ -10,7 +10,7 @@ use InvalidArgumentException;
  *
  * https://godoc.org/go/ast#Ident
  */
-final class Ident implements NodeInterface
+final class Ident implements ExpressionInterface
 {
     public int $namePos; // identifier position
     public string $name; // identifier name
@@ -26,7 +26,7 @@ final class Ident implements NodeInterface
 
     public function tokenLiteral(): string
     {
-        // TODO: Implement tokenLiteral() method.
+        return $this->name;
     }
 
     public static function castIdent(NodeInterface $obj): Ident
@@ -35,5 +35,10 @@ final class Ident implements NodeInterface
             throw new InvalidArgumentException("{$obj} is not instance of Ident");
         }
         return $obj;
+    }
+
+    public function exprNode(): void
+    {
+        // TODO: Implement exprNode() method.
     }
 }
