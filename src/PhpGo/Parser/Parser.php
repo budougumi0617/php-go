@@ -64,6 +64,7 @@ final class Parser
     private ?Scope $pkgScope;
     /** @var array<GoObject> * */
     private array $unresolved;
+    private string $lit; // token literal
 
 
     public function __construct(Lexer $l)
@@ -76,6 +77,7 @@ final class Parser
         $this->topScope = null;
         $this->pkgScope = null;
         $this->unresolved = [];
+        $this->lit = '';
 
         // initialize $curToken, $peekToken.
         $this->nextToken();
@@ -465,7 +467,7 @@ final class Parser
         /** @var array<ExpressionInterface> $list */
         $list = [];
         $ellipsis = 0; // token.Pos
-        $rparenToken = new Token(new RparenType(), ''); // create outside loop for performance.
+        $rparenType = new RparenType(); // create outside loop for performance.
         // $ellipsis == 0: original is !ellipsis.IsValid()
         while ($this->curToken->type->getType() != TokenType::T_RPAREN
             && $this->curToken->type->getType() != TokenType::T_EOF && $ellipsis == 0) {
@@ -473,13 +475,13 @@ final class Parser
             if ($this->curToken->type->getType() == TokenType::T_ELLIPSIS) {
                 throw new BadMethodCallException(__METHOD__ . "is not support ellipsis now");
             }
-            if (!$this->atComma("argument list", $rparenToken)) {
+            if (!$this->atComma("argument list", $rparenType)) {
                 break;
             }
             $this->nextToken();
         }
         $this->exprLev--;
-        $rparen = $this->expectClosing($rparenToken, "argument list");
+        $rparen = $this->expectClosing($rparenType, "argument list");
         return new CallExpr($fun, $lparen, $list, $ellipsis, $rparen);
     }
 
@@ -1049,6 +1051,24 @@ final class Parser
                 // p.advance(stmtStart) // TODO: implement advance method.
             }
         }
+    }
+
+    private function atComma(string $context, TokenType $follow): bool
+    {
+        if ($this->curToken->type->getType() == TokenType::T_COMMA) {
+            return true;
+        }
+        if ($this->curToken->type->getType() != $follow->getType()) {
+            $msg = "missing ','";
+            if ($this->curToken->type->getType() == TokenType::T_SEMICOLON && $this->lit == "\n") {
+                $msg .= " before newline";
+            }
+            echo "{$msg} in {$context}";
+            // TODO: 本当はp.error
+            throw new UnexpectedValueException("{$msg} in {$context}");
+            return true; // "insert" comma and continue
+        }
+        return false;
     }
 
     /**
