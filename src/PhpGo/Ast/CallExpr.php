@@ -21,15 +21,18 @@ final class CallExpr implements ExpressionInterface
     /**
      * CallExpr constructor.
      * @param ExpressionInterface $fun
-     * @param array<ExpressionInterface>|null $args
+     * @param int $lparen
+     * @param array|null $args
+     * @param int $ellipsis
+     * @param int $rparen
      */
-    public function __construct(ExpressionInterface $fun, ?array $args)
+    public function __construct(ExpressionInterface $fun, int $lparen, ?array $args, int $ellipsis, int $rparen)
     {
         $this->fun = $fun;
-        $this->lparen = 0;
+        $this->lparen = $lparen;
         $this->args = $args;
-        $this->ellipsis = 0;
-        $this->rparen = 0;
+        $this->ellipsis = $ellipsis;
+        $this->rparen = $rparen;
     }
 
     public function exprNode(): void
