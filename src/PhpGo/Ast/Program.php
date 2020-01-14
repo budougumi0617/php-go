@@ -17,11 +17,14 @@ namespace PhpGo\Ast;
 final class Program implements NodeInterface
 {
     public Ident $name; // package name.
+    /** @var array<StatementInterface> $statements */
     public array $statements; // StatementInterface array.
+    public ?Scope $scope;
 
     public function __construct(array $statements)
     {
         $this->statements = $statements;
+        $this->scope = null;
     }
 
     public function tokenLiteral(): string

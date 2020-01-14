@@ -55,6 +55,7 @@ final class Parser
     private ?Token $peekToken;
     private bool $inRhs; // if set, the parser is parsing a rhs expression
     private ?Scope $topScope;
+    private ?Scope $pkgScope;
     /** @var array<GoObject> * */
     private array $unresolved;
 
@@ -66,6 +67,7 @@ final class Parser
         $this->curToken = null;
         $this->inRhs = false;
         $this->topScope = null;
+        $this->pkgScope = null;
         $this->unresolved = [];
 
         // initialize $curToken, $peekToken.
@@ -84,6 +86,8 @@ final class Parser
     {
         $statements = [];
         $name = null;
+        $this->openScope();
+        $this->pkgScope = &$this->topScope;
         while (!$this->curToken->type instanceof EofType) {
             switch ($this->curToken->type->getType()) {
                 // FIXME: 本当はファイルの戦闘に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
@@ -104,11 +108,18 @@ final class Parser
             }
             $this->nextToken();
         }
+        $this->closeScope();
+        // assert(p.topScope == nil, "unbalanced scopes")
+        // assert(p.labelScope == nil, "unbalanced label scopes")
+        if (!is_null($this->topScope)) {
+            throw new UnexpectedValueException('unbalanced scopes');
+        }
 
         $program = new Program($statements);
         if (!is_null($name)) {
             $program->name = $name;
         }
+        $program->scope = $this->pkgScope;
 
         return $program;
     }
@@ -396,7 +407,14 @@ final class Parser
             switch ($this->curToken->type->getType()) {
                 case TokenType::T_PERIOD:
                 case TokenType::T_LBRACK:
+                    throw new BadMethodCallException('parsePrimaryExpr is not implementation yet');
                 case TokenType::T_LPAREN:
+                    if ($lhs) {
+                        $this->resolve($x);
+                    }
+                    // x = p.parseCallOrConversion(p.checkExprOrType(x))
+                    throw new BadMethodCallException('LPARENのときを実装する！！！！！！！！');
+                    break;
                 case TokenType::T_LBRACE:
                     throw new BadMethodCallException('parsePrimaryExpr is not implementation yet');
                 default:
@@ -567,15 +585,15 @@ final class Parser
             case $x instanceof IndexExpr:
                 // case *ast.SliceExpr:
                 break;
-                // case *ast.TypeAssertExpr:
-                // If t.Type == nil we have a type assertion of the form
-                // y.(type), which is only allowed in type switch expressions.
-                // It's hard to exclude those but for the case where we are in
-                // a type switch. Instead be lenient and test this in the type
-                // checker.
-                // break;
-            // case *ast.CallExpr:
-            // case *ast.StarExpr:
+            // case *ast.TypeAssertExpr:
+            // If t.Type == nil we have a type assertion of the form
+            // y.(type), which is only allowed in type switch expressions.
+            // It's hard to exclude those but for the case where we are in
+            // a type switch. Instead be lenient and test this in the type
+            // checker.
+            // break;
+            case $x instanceof CallExpr:
+                // case *ast.StarExpr:
             case $x instanceof UnaryExpr:
             case $x instanceof BinaryExpr:
                 break;

@@ -35,7 +35,7 @@ final class Scope
      *
      * port from go/ast/Scope.Lookup
      */
-    public function lookup(string $name): GoObject
+    public function lookup(string $name): ?GoObject
     {
         return $this->objects[$name];
     }
