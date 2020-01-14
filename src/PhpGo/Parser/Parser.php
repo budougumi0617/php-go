@@ -3,6 +3,7 @@
 namespace PhpGo\Parser;
 
 use BadMethodCallException;
+use PhpGo\Ast\ArrayType;
 use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BadExpr;
 use PhpGo\Ast\BasicLit;
@@ -397,6 +398,26 @@ final class Parser
         //  p.errorExpected(pos, "operand")
         //  p.advance(stmtStart)
         //  return &ast.BadExpr{From: pos, To: p.pos}
+    }
+
+    /**
+     * checkExprOrType checks that x is an expression or a type
+     * (and not a raw type such as [...]T).
+     *
+     * @param ExpressionInterface $x
+     * @return ExpressionInterface
+     */
+    private function checkExprOrType(ExpressionInterface $x): ExpressionInterface
+    {
+        $t = $this->unparen($x);
+        switch (true) {
+            case $t instanceof ParenExpr:
+                throw  new UnexpectedValueException(__METHOD__ . ": unreachable");
+            case $t instanceof ArrayType:
+                throw new BadMethodCallException(__METHOD__ . ": not implement for ArrayType yet");
+        }
+        // all other nodes are expressions or types
+        return $x;
     }
 
     /**
