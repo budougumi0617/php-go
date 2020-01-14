@@ -826,6 +826,18 @@ final class Parser
         }
     }
 
+    /**
+     * @return ExpressionInterface
+     */
+    private function parseRhsOrType(): ExpressionInterface
+    {
+        $old = $this->inRhs;
+        $this->inRhs = true;
+        $x = $this->checkExprOrType($this->parseExpr(false));
+        $this->inRhs = $old;
+        return $x;
+    }
+
     // ----------------------------------------------------------------------------
     // Statements
 
