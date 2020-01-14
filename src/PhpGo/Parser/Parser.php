@@ -8,6 +8,7 @@ use PhpGo\Ast\BadExpr;
 use PhpGo\Ast\BasicLit;
 use PhpGo\Ast\BinaryExpr;
 use PhpGo\Ast\BlockStmt;
+use PhpGo\Ast\CallExpr;
 use PhpGo\Ast\DeclarationInterface;
 use PhpGo\Ast\ExpressionInterface;
 use PhpGo\Ast\ExprStmt;
@@ -53,7 +54,11 @@ final class Parser
     private Lexer $lexer;
     private ?Token $curToken;
     private ?Token $peekToken;
+
+    // Non-syntactic parser control
+    private int $exprLev;  // < 0: in control clause, >= 0: in expression
     private bool $inRhs; // if set, the parser is parsing a rhs expression
+
     private ?Scope $topScope;
     private ?Scope $pkgScope;
     /** @var array<GoObject> * */
@@ -65,6 +70,7 @@ final class Parser
         $this->lexer = $l;
         $this->peekToken = null;
         $this->curToken = null;
+        $this->exprLev = 0;
         $this->inRhs = false;
         $this->topScope = null;
         $this->pkgScope = null;
@@ -87,7 +93,7 @@ final class Parser
         $statements = [];
         $name = null;
         $this->openScope();
-        $this->pkgScope = &$this->topScope;
+        $this->pkgScope = &$this->topScope; // TODO: これであっているのか？普通に渡しても参照わたし？
         while (!$this->curToken->type instanceof EofType) {
             switch ($this->curToken->type->getType()) {
                 // FIXME: 本当はファイルの戦闘に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
@@ -412,8 +418,7 @@ final class Parser
                     if ($lhs) {
                         $this->resolve($x);
                     }
-                    // x = p.parseCallOrConversion(p.checkExprOrType(x))
-                    throw new BadMethodCallException('LPARENのときを実装する！！！！！！！！');
+                    $x = $this->parseCallOrConversion($this->checkExprOrType($x));
                     break;
                 case TokenType::T_LBRACE:
                     throw new BadMethodCallException('parsePrimaryExpr is not implementation yet');
@@ -424,6 +429,37 @@ final class Parser
         }
         L:
         return $x;
+    }
+
+    /**
+     * @param ExpressionInterface $fun
+     * @return CallExpr
+     *
+     * port from go/ast/Parser.parseCallOrConversion
+     */
+    private function parseCallOrConversion(ExpressionInterface $fun): CallExpr
+    {
+        $lparen = $this->expect(TokenType::T_LPAREN);
+        $this->exprLev++;
+        /** @var array<ExpressionInterface> $list */
+        $list = [];
+        $ellipsis = 0; // token.Pos
+        $rparenToken = new Token(new RparenType(), ''); // create outside loop for performance.
+        // $ellipsis == 0: original is !ellipsis.IsValid()
+        while ($this->curToken->type->getType() != TokenType::T_RPAREN
+            && $this->curToken->type->getType() != TokenType::T_EOF && $ellipsis == 0) {
+            $list[] = $this->parseRhsOrType();// builtins may expect a type: make(some type, ...)
+            if ($this->curToken->type->getType() == TokenType::T_ELLIPSIS) {
+                throw new BadMethodCallException(__METHOD__ . "is not support ellipsis now");
+            }
+            if (!$this->atComma("argument list", $rparenToken)) {
+                break;
+            }
+            $this->nextToken();
+        }
+        $this->exprLev--;
+        $rparen = $this->expectClosing($rparenToken, "argument list");
+        return new CallExpr($fun, $lparen, $list, $ellipsis, $rparen);
     }
 
     /**
