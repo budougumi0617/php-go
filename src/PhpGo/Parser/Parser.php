@@ -1124,4 +1124,22 @@ final class Parser
         $this->nextToken(); // make progress
         return $pos;
     }
+
+    /**
+     * expectClosing is like expect but provides a better error message
+     * for the common case of a missing comma before a newline.
+     * @param TokenType $tok Goの実装ではToken
+     * @param string $context
+     * @return int
+     */
+    private function expectClosing(TokenType $tok, string $context): int
+    {
+        // TODO: FXIME:
+        throw new BadMethodCallException(__METHOD__."not implement yet!!!!!!!!!!!!!!!");
+        //	if p.tok != tok && p.tok == token.SEMICOLON && p.lit == "\n" {
+        //		p.error(p.pos, "missing ',' before newline in "+context)
+        //		p.next()
+        //	}
+        return $this->expect($tok->getType());
+    }
 }
