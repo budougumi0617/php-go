@@ -1134,12 +1134,12 @@ final class Parser
      */
     private function expectClosing(TokenType $tok, string $context): int
     {
-        // TODO: FXIME:
-        throw new BadMethodCallException(__METHOD__."not implement yet!!!!!!!!!!!!!!!");
-        //	if p.tok != tok && p.tok == token.SEMICOLON && p.lit == "\n" {
-        //		p.error(p.pos, "missing ',' before newline in "+context)
-        //		p.next()
-        //	}
+        if ($this->curToken->type->getType() != $tok->getType() && $this->lit == "\n" ) {
+            // TODO: 本当はp.error
+            echo  "missing ',' before newline in {$context}";
+            $this->nextToken();
+        }
+
         return $this->expect($tok->getType());
     }
 }

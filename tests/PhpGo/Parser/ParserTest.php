@@ -2,6 +2,8 @@
 
 namespace Tests\PhpGo\Parser;
 
+use PhpGo\Ast\CallExpr;
+use PhpGo\Ast\ExprStmt;
 use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Lexer\Lexer;
@@ -123,5 +125,12 @@ EOT;
         $program = $parser->parseProgram();
         $this->assertNotNull($program);
         $this->assertEquals('main', $program->name->name);
+        $this->assertEquals(TokenType::T_FUNC, $program->statements[0]->type->getType());
+        $this->assertEquals('msg', $program->statements[0]->body->list[0]->lhs[0]->name);
+        $this->assertEquals('"hello world"', $program->statements[0]->body->list[0]->rhs[0]->value);
+        $this->assertTrue($program->statements[0]->body->list[1] instanceof ExprStmt);
+        $this->assertTrue($program->statements[0]->body->list[1]->x instanceof CallExpr);
+        $this->assertEquals('print', $program->statements[0]->body->list[1]->x->fun->name);
+        $this->assertEquals('msg', $program->statements[0]->body->list[1]->x->args[0]->name);
     }
 }
