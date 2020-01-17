@@ -1,0 +1,16 @@
+on: [push, pull_request]
+name: test
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    name: PHP 7.4 test
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: '7.4'
+      - name: Install Dependencies
+        run: composer install
+      - name: Execute phpunit
+        run: make test
