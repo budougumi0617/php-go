@@ -35,9 +35,8 @@ class Token
     {
         $keywords = self::keymap();
 
-        $type = $keywords[$ident];
-        if ($type !== null) {
-            return $type;
+        if (array_key_exists($ident, $keywords)) {
+            return $keywords[$ident];
         }
         return new IdentType();
     }
