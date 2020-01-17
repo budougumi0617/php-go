@@ -31,13 +31,16 @@ final class Scope
      * found in scope s, otherwise it returns nil. Outer scopes are ignored.
      *
      * @param string $name
-     * @return GoObject
+     * @return GoObject|null
      *
      * port from go/ast/Scope.Lookup
      */
     public function lookup(string $name): ?GoObject
     {
-        return $this->objects[$name];
+        if (array_key_exists($name, $this->objects)) {
+            return $this->objects[$name];
+        }
+        return null;
     }
 
     /**
