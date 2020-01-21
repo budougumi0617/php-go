@@ -308,7 +308,6 @@ final class Parser
         while ($this->curToken->type->getType() == TokenType::T_COMMA) {
             $this->nextToken();
             $list[] = $this->checkExpr($this->parseExpr($lhs));
-
         }
         return $list;
     }
@@ -797,7 +796,7 @@ final class Parser
     }
 
     /**
-     * @param AssignStmt $decl
+     * @param AssignStmt                 $decl
      * @param array<ExpressionInterface> $list
      */
     private function shortVarDecl(AssignStmt $decl, array $list): void
@@ -874,6 +873,7 @@ final class Parser
             && $this->peekToken->type->getType() === TokenType::T_EOF) {
             return [$x[0], false];
         }
+
         switch ($this->curToken->type->getType()) {
             case TokenType::T_DEFINE:
             case TokenType::T_ASSIGN:

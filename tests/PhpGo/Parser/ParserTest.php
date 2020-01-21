@@ -8,6 +8,7 @@ use PhpGo\Ast\GenDecl;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Parser\Parser;
+use PhpGo\Token\AddType;
 use PhpGo\Token\TokenType;
 use PHPUnit\Framework\TestCase;
 
@@ -145,10 +146,16 @@ EOT;
         $this->assertEquals('10', $program->statements[0]->kind->literal);
     }
 
+    public function test_parseProgram_BinaryExpr(): void
+    {
+        $input = <<<EOT
+10+15
 EOT;
         $parser = new Parser(new Lexer($input));
         $program = $parser->parseProgram();
         $this->assertNotNull($program);
-        $this->assertEquals('10', $program->statements[0]->kind->literal);
+        $this->assertEquals('10', $program->statements[0]->x->kind->literal);
+        $this->assertTrue($program->statements[0]->op->type instanceof AddType);
+        $this->assertEquals('15', $program->statements[0]->y->kind->literal);
     }
 }
