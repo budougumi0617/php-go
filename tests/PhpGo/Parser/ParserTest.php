@@ -133,4 +133,22 @@ EOT;
         $this->assertEquals('print', $program->statements[0]->body->list[1]->x->fun->name);
         $this->assertEquals('msg', $program->statements[0]->body->list[1]->x->args[0]->name);
     }
+
+    public function test_parseProgram_integer(): void
+    {
+        $input = <<<EOT
+10
+EOT;
+        $parser = new Parser(new Lexer($input));
+        $program = $parser->parseProgram();
+        $this->assertNotNull($program);
+        $this->assertEquals('10', $program->statements[0]->kind->literal);
+    }
+
+EOT;
+        $parser = new Parser(new Lexer($input));
+        $program = $parser->parseProgram();
+        $this->assertNotNull($program);
+        $this->assertEquals('10', $program->statements[0]->kind->literal);
+    }
 }

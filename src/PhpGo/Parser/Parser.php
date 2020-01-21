@@ -99,7 +99,7 @@ final class Parser
         $this->pkgScope = $this->topScope; // TODO: これであっているのか？普通に渡しても参照わたし？
         while (!$this->curToken->type instanceof EofType) {
             switch ($this->curToken->type->getType()) {
-                // FIXME: 本当はファイルの戦闘に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
+                // FIXME: 本当はファイルの先頭に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
                 case TokenType::T_PACKAGE:
                     // TODO: $program.packageにposition of "package" keywordを保存しておく
                     $this->expect(TokenType::T_PACKAGE);
@@ -114,6 +114,11 @@ final class Parser
                     break;
                 case TokenType::T_FUNC:
                     $statements[] = $this->parseFuncDecl();
+                    break;
+                default:
+                    // [StatementInterface, bool]
+                    $results = $this->parseSimpleStmt(self::BASIC);
+                    $statements[] = $results[0];
             }
             $this->nextToken();
         }
@@ -371,7 +376,8 @@ final class Parser
                 }
                 return $x;
             case TokenType::T_STRING:
-                // case token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+            case TokenType::T_INT:
+                // token.FLOAT, token.IMAG, token.CHAR, token.STRING:
                 $x = new BasicLit($this->curToken);
                 $this->nextToken();
                 return $x;
@@ -578,7 +584,7 @@ final class Parser
      * If lhs is set and the result is an identifier, it is not resolved.
      *
      * @param bool $lhs
-     * @param int $prec1
+     * @param int  $prec1
      * @return ExpressionInterface
      */
     private function parseBinaryExpr(bool $lhs, int $prec1): ExpressionInterface
@@ -717,7 +723,7 @@ final class Parser
      * identifiers.
      *
      * @param ExpressionInterface $x
-     * @param bool $collectUnresolved
+     * @param bool                $collectUnresolved
      */
     private function tryResolve(ExpressionInterface $x, bool $collectUnresolved): void
     {
@@ -863,6 +869,11 @@ final class Parser
     {
         $x = $this->parseLhsList();
 
+        // REPL対応
+        if ($this->curToken->type->getType() === TokenType::T_SEMICOLON
+            && $this->peekToken->type->getType() === TokenType::T_EOF) {
+            return [$x[0], false];
+        }
         switch ($this->curToken->type->getType()) {
             case TokenType::T_DEFINE:
             case TokenType::T_ASSIGN:
@@ -1129,14 +1140,14 @@ final class Parser
      * expectClosing is like expect but provides a better error message
      * for the common case of a missing comma before a newline.
      * @param TokenType $tok Goの実装ではToken
-     * @param string $context
+     * @param string    $context
      * @return int
      */
     private function expectClosing(TokenType $tok, string $context): int
     {
-        if ($this->curToken->type->getType() != $tok->getType() && $this->lit == "\n" ) {
+        if ($this->curToken->type->getType() != $tok->getType() && $this->lit == "\n") {
             // TODO: 本当はp.error
-            echo  "missing ',' before newline in {$context}";
+            echo "missing ',' before newline in {$context}";
             $this->nextToken();
         }
 
