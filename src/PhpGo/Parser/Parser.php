@@ -96,7 +96,7 @@ final class Parser
         $statements = [];
         $name = null;
         $this->openScope();
-        $this->pkgScope = &$this->topScope; // TODO: これであっているのか？普通に渡しても参照わたし？
+        $this->pkgScope = $this->topScope; // TODO: これであっているのか？普通に渡しても参照わたし？
         while (!$this->curToken->type instanceof EofType) {
             switch ($this->curToken->type->getType()) {
                 // FIXME: 本当はファイルの戦闘に一回しか現れてはいけない。REPLを考えると、mustで現れるようにもできない。
