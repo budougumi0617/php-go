@@ -2,6 +2,9 @@
 
 namespace PhpGo\Object;
 
+use InvalidArgumentException;
+use phpDocumentor\Reflection\Types\Self_;
+
 final class Integer implements GoObject
 {
     public int $value;
@@ -19,5 +22,13 @@ final class Integer implements GoObject
     public function inspect(): string
     {
         return strval($this->value);
+    }
+
+    public static function castInteger(GoObject $obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of Integer");
+        }
+        return $obj;
     }
 }
