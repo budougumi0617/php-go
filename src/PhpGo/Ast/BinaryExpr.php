@@ -2,6 +2,7 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
 use PhpGo\Token\Token;
 
 /**
@@ -34,5 +35,13 @@ final class BinaryExpr implements ExpressionInterface
     public function tokenLiteral(): string
     {
         // TODO: Implement tokenLiteral() method.
+    }
+
+    public static function castBinaryExpr(NodeInterface $obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of BinaryExpr");
+        }
+        return $obj;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
 use PhpGo\Token\Token;
 
 /**
