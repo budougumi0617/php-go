@@ -140,6 +140,7 @@ final class Parser
 
     /**
      * @param Token $keyword
+     *
      * @return DeclarationInterface go/parser/Parser.parseGenDeclをIMPORTのparse専用に改造したもの。
      *
      * go/parser/Parser.parseGenDeclをIMPORTのparse専用に改造したもの。
@@ -362,7 +363,9 @@ final class Parser
      * parseOperand may return an expression or a raw type (incl. array
      * types of the form [...]T. Callers must verify the result.
      * If lhs is set and the result is an identifier, it is not resolved.
+     *
      * @param bool $lhs
+     *
      * @return ExpressionInterface
      */
     private function parseOperand(bool $lhs): ExpressionInterface
@@ -412,6 +415,7 @@ final class Parser
      * (and not a raw type such as [...]T).
      *
      * @param ExpressionInterface $x
+     *
      * @return ExpressionInterface
      */
     private function checkExprOrType(ExpressionInterface $x): ExpressionInterface
@@ -431,6 +435,7 @@ final class Parser
      * If lhs is set and the result is an identifier, it is not resolved.
      *
      * @param bool $lhs
+     *
      * @return ExpressionInterface
      */
     private function parsePrimaryExpr(bool $lhs): ExpressionInterface
@@ -461,6 +466,7 @@ final class Parser
 
     /**
      * @param ExpressionInterface $fun
+     *
      * @return CallExpr
      *
      * port from go/ast/Parser.parseCallOrConversion
@@ -494,6 +500,7 @@ final class Parser
      * If lhs is set and the result is an identifier, it is not resolved.
      *
      * @param bool $lhs
+     *
      * @return ExpressionInterface
      */
     private function parseUnaryExpr(bool $lhs): ExpressionInterface
@@ -584,6 +591,7 @@ final class Parser
      *
      * @param bool $lhs
      * @param int  $prec1
+     *
      * @return ExpressionInterface
      */
     private function parseBinaryExpr(bool $lhs, int $prec1): ExpressionInterface
@@ -631,6 +639,7 @@ final class Parser
      * checkExpr checks that x is an expression (and not a type).
      *
      * @param ExpressionInterface $x
+     *
      * @return ExpressionInterface
      */
     private function checkExpr(ExpressionInterface $x): ExpressionInterface
@@ -682,6 +691,7 @@ final class Parser
      * later on.
      *
      * @param int $pos
+     *
      * @return int
      *
      */
@@ -700,6 +710,7 @@ final class Parser
      * If x is of the form (T), unparen returns unparen(T), otherwise it returns x.
      *
      * @param ExpressionInterface $x
+     *
      * @return ExpressionInterface
      */
     private function unparen(ExpressionInterface $x): ExpressionInterface
@@ -860,6 +871,7 @@ final class Parser
      * the form "range x". No guarantees are given for the left-hand side.
      *
      * @param int $mode BASIC or LABEL_OK or RANGE_OK
+     *
      * @return array [StatementInterface, bool]
      *
      * port from go/parser/Parser.parseSimpleStmt.
@@ -1102,6 +1114,7 @@ final class Parser
 
     /**
      * @param string $tokType TokenTypeのconst定数
+     *
      * @return int TODO: 現状は常に0。
      *
      * port from go/parser/Parser.expect.
@@ -1121,6 +1134,7 @@ final class Parser
      * if the expected token is not found.
      *
      * @param string $type
+     *
      * @return int
      */
     private function expect2(string $type): int
@@ -1139,8 +1153,10 @@ final class Parser
     /**
      * expectClosing is like expect but provides a better error message
      * for the common case of a missing comma before a newline.
+     *
      * @param TokenType $tok Goの実装ではToken
      * @param string    $context
+     *
      * @return int
      */
     private function expectClosing(TokenType $tok, string $context): int

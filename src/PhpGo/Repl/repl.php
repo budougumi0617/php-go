@@ -17,13 +17,6 @@ function Start(): void
         $line = trim(fgets(STDIN));
         $lexer = new Lexer($line);
 
-        while (true) {
-            $tok = $lexer->nextToken();
-            echo $tok->string() . PHP_EOL;
-            if ($tok->type() instanceof EofType) {
-                break;
-            }
-        }
         // TODO: P128を見てEvalまで書く。
         $parser = new Parser($lexer);
         $program = $parser->parseProgram();
