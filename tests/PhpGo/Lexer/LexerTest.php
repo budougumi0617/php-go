@@ -36,12 +36,12 @@ final class LexerTest extends TestCase
         $lexer = new Lexer($input);
         foreach ($expectedTokens as $expectedToken) {
             $token = $lexer->nextToken();
-            self::assertEquals(
-                $expectedToken->type,
-                $token->type,
+            self::assertSame(
+                $expectedToken->type->getType(),
+                $token->type->getType(),
                 "expect {$expectedToken->type->getType()}, bad {$token->type->getType()}"
             );
-            self::assertEquals($expectedToken->literal, $token->literal, "{$expectedToken->type->getType()} failed");
+            self::assertSame($expectedToken->literal, $token->literal, "{$expectedToken->type->getType()} failed");
         }
     }
 

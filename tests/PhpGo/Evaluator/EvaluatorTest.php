@@ -21,7 +21,7 @@ final class EvaluatorTest extends TestCase
     {
         $got = $this->testEval($input);
         $integer = Integer::castInteger($got);
-        $this->assertEquals($want, $integer->value);
+        $this->assertSame($want, $integer->value);
     }
 
     public function providerForEvalIntegerExpression(): array
