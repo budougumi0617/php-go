@@ -32,4 +32,13 @@ final class BasicLit implements ExpressionInterface
     {
         return $this->kind->string() . ', value: ' . $this->value;
     }
+
+
+    public static function castBasicLit(NodeInterface $obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of BasicLit");
+        }
+        return $obj;
+    }
 }

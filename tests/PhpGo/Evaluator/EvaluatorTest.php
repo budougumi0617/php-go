@@ -24,7 +24,8 @@ final class EvaluatorTest extends TestCase
         $this->assertEquals($want, $integer->value);
     }
 
-    public function providerForEvalIntegerExpression():array {
+    public function providerForEvalIntegerExpression(): array
+    {
         return [
             'five' => ['5', 5],
             'ten' => ['10', 10],
@@ -33,7 +34,7 @@ final class EvaluatorTest extends TestCase
 
     private function testEval(string $input): GoObject
     {
-        $parser =  new Parser(new Lexer($input));
+        $parser = new Parser(new Lexer($input));
         $program = $parser->parseProgram();
         return Evaluator::Eval($program);
     }

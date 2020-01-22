@@ -2,6 +2,9 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
+use PhpGo\Object\GoObject;
+
 /**
  * Class Program
  * @package PhpGo\Ast
@@ -34,5 +37,13 @@ final class Program implements NodeInterface
             return $stmt->tokenLiteral();
         }
         return '';
+    }
+
+    public static function castProgram(NodeInterface $node): self
+    {
+        if (!($node instanceof self)) {
+            throw new InvalidArgumentException("{$node} is not instance of Integer");
+        }
+        return $node;
     }
 }
