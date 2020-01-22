@@ -2,6 +2,7 @@
 
 namespace Tests\PhpGo\Parser;
 
+use PhpGo\Ast\BinaryExpr;
 use PhpGo\Ast\CallExpr;
 use PhpGo\Ast\ExprStmt;
 use PhpGo\Ast\GenDecl;
@@ -154,6 +155,7 @@ EOT;
         $parser = new Parser(new Lexer($input));
         $program = $parser->parseProgram();
         $this->assertNotNull($program);
+        $this->assertTrue($program->statements[0] instanceof BinaryExpr);
         $this->assertSame('10', $program->statements[0]->x->kind->literal);
         $this->assertTrue($program->statements[0]->op->type instanceof AddType);
         $this->assertSame('15', $program->statements[0]->y->kind->literal);

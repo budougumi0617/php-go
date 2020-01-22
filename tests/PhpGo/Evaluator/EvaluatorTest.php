@@ -29,6 +29,8 @@ final class EvaluatorTest extends TestCase
         return [
             'five' => ['5', 5],
             'ten' => ['10', 10],
+            'add1' => ['10 + 5', 15],
+            'add multi' => ['10 + 5 + 5', 20],
         ];
     }
 
