@@ -4,6 +4,7 @@ namespace PhpGo\Evaluator;
 
 use InvalidArgumentException;
 use PhpGo\Ast\BasicLit;
+use PhpGo\Ast\BinaryExpr;
 use PhpGo\Ast\NodeInterface;
 use PhpGo\Ast\Program;
 use PhpGo\Object\GoObject;
@@ -14,6 +15,7 @@ final class Evaluator
 {
     public static function eval(NodeInterface $node): ?GoObject
     {
+        // FIXME: if-elseはやめたい…
         if ($node instanceof Program) {
             // FIXME pkg scopeを渡せる
             $program = Program::castProgram($node);
@@ -26,7 +28,17 @@ final class Evaluator
                 default:
                     throw new InvalidArgumentException("{$basicLit} is not instance of BasicLit");
             }
-
+        } else if ($node instanceof BinaryExpr) {
+            $binaryExpr = BinaryExpr::castBinaryExpr($node);
+            $x = self::eval($binaryExpr->x);
+            $y = self::eval($binaryExpr->y);
+            switch ($binaryExpr->op->type->getType()) {
+                case TokenType::T_ADD:
+                    // 型キャストせずにvalue呼んでいる。
+                    return new Integer(intval($x->value) + intval($y->value));
+                default:
+                    throw new InvalidArgumentException("{$binaryExpr} supports only ADD");
+            }
         }
         return null;
     }
