@@ -6,6 +6,7 @@ use PhpGo\Evaluator\Evaluator;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Object\GoObject;
 use PhpGo\Object\Integer;
+use PhpGo\Object\Scope;
 use PhpGo\Parser\Parser;
 use PHPUnit\Framework\TestCase;
 
@@ -39,7 +40,7 @@ final class EvaluatorTest extends TestCase
     public function providerForEvalAssign(): array
     {
         return [
-            'simple_assign' => ['x :=5', 5],
+            'simple_assign' => ['x := 5', 5],
             'multiple_assign_x' => ["x, y := 10, 20\nx", 10],
             'multiple_assign_y' => ["x, y := 10, 20\ny", 20],
         ];
@@ -49,6 +50,6 @@ final class EvaluatorTest extends TestCase
     {
         $parser = new Parser(new Lexer($input));
         $program = $parser->parseProgram();
-        return Evaluator::Eval($program);
+        return Evaluator::Eval($program, new Scope());
     }
 }

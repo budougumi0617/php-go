@@ -4,14 +4,14 @@ namespace Repl;
 
 use PhpGo\Evaluator\Evaluator;
 use PhpGo\Lexer\Lexer;
+use PhpGo\Object\Scope;
 use PhpGo\Parser\Parser;
-use PhpGo\Token\EofType;
-use PhpGo\Token\SemicolonType;
 
 const PROMPT = '>> ';
 
 function Start(): void
 {
+    $rootScope = new Scope();
     while (true) {
         echo PROMPT;
         $line = trim(fgets(STDIN));
@@ -22,7 +22,8 @@ function Start(): void
         $program = $parser->parseProgram();
         // TODO: エラー処理を書くこと
 
-        $evaluate = Evaluator::Eval($program);
+
+        $evaluate = Evaluator::Eval($program, $rootScope);
         if (!is_null($evaluate)) {
             echo $evaluate->inspect() . PHP_EOL;
         }

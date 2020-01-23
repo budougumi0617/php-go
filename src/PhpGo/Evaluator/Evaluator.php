@@ -9,11 +9,12 @@ use PhpGo\Ast\NodeInterface;
 use PhpGo\Ast\Program;
 use PhpGo\Object\GoObject;
 use PhpGo\Object\Integer;
+use PhpGo\Object\Scope;
 use PhpGo\Token\TokenType;
 
 final class Evaluator
 {
-    public static function eval(NodeInterface $node): ?GoObject
+    public static function eval(NodeInterface $node, Scope $scope): ?GoObject
     {
         // FIXME: if-elseはやめたい…
         if ($node instanceof Program) {
