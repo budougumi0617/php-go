@@ -34,7 +34,7 @@ final class Evaluator
             $y = self::eval($binaryExpr->y);
             switch ($binaryExpr->op->type->getType()) {
                 case TokenType::T_ADD:
-                    // 型キャストせずにvalue呼んでいる。
+                    // FIXME: 型キャストせずにvalue呼んでいる。
                     return new Integer(intval($x->value) + intval($y->value));
                 default:
                     throw new InvalidArgumentException("{$binaryExpr} supports only ADD");

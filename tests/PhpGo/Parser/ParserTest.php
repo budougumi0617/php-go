@@ -2,10 +2,12 @@
 
 namespace Tests\PhpGo\Parser;
 
+use PhpGo\Ast\AssignStmt;
 use PhpGo\Ast\BinaryExpr;
 use PhpGo\Ast\CallExpr;
 use PhpGo\Ast\ExprStmt;
 use PhpGo\Ast\GenDecl;
+use PhpGo\Ast\Ident;
 use PhpGo\Ast\ImportSpec;
 use PhpGo\Lexer\Lexer;
 use PhpGo\Parser\Parser;
@@ -159,5 +161,20 @@ EOT;
         $this->assertSame('10', $program->statements[0]->x->kind->literal);
         $this->assertTrue($program->statements[0]->op->type instanceof AddType);
         $this->assertSame('15', $program->statements[0]->y->kind->literal);
+    }
+
+    public function test_parseProgram_AssignStmt(): void
+    {
+        $input = "x,y := 20, 30\nx";
+        $parser = new Parser(new Lexer($input));
+        $program = $parser->parseProgram();
+        $this->assertNotNull($program);
+        $this->assertTrue($program->statements[0] instanceof AssignStmt);
+        $this->assertSame('x', $program->statements[0]->lhs[0]->name);
+        $this->assertSame('y', $program->statements[0]->lhs[1]->name);
+        $this->assertSame('20', $program->statements[0]->rhs[0]->value);
+        $this->assertSame('30', $program->statements[0]->rhs[1]->value);
+        $this->assertTrue($program->statements[1] instanceof Ident);
+        $this->assertSame('x', $program->statements[1]->name);
     }
 }
