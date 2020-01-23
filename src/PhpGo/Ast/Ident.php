@@ -29,16 +29,16 @@ final class Ident implements ExpressionInterface
         return $this->name;
     }
 
+    public function exprNode(): void
+    {
+        // TODO: Implement exprNode() method.
+    }
+
     public static function castIdent(NodeInterface $obj): Ident
     {
         if (!($obj instanceof Ident)) {
             throw new InvalidArgumentException("{$obj} is not instance of Ident");
         }
         return $obj;
-    }
-
-    public function exprNode(): void
-    {
-        // TODO: Implement exprNode() method.
     }
 }

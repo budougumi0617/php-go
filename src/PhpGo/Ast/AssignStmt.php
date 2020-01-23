@@ -2,6 +2,7 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
 use PhpGo\Token\Token;
 
 /**
@@ -49,5 +50,13 @@ final class AssignStmt implements StatementInterface
     public function stmtNode(): void
     {
         // TODO: Implement stmtNode() method.
+    }
+
+    public static function castAssignStmt(NodeInterface $obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of BinaryExpr");
+        }
+        return $obj;
     }
 }

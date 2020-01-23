@@ -12,16 +12,15 @@ final class Scope
         $this->store = [];
     }
 
-    private function get(string $name): GoObject
+    public function get(string $name): GoObject
     {
-        if (!array_key_exists($name, $this->store))
-        {
+        if (!array_key_exists($name, $this->store)) {
             throw new \UnexpectedValueException("{$name} is not exist");
         }
         return $this->store[$name];
     }
 
-    public function set($name, GoObject $obj):GoObject
+    public function set(string $name, GoObject $obj): GoObject
     {
         $this->store[$name] = $obj;
         return $obj;
