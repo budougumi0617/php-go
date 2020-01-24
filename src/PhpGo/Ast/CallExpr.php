@@ -2,6 +2,8 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
+
 /**
  * Class CallExpr
  * @package PhpGo\Ast
@@ -33,6 +35,14 @@ final class CallExpr implements ExpressionInterface
         $this->args = $args;
         $this->ellipsis = $ellipsis;
         $this->rparen = $rparen;
+    }
+
+    public static function castCallExpr(NodeInterface $obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of CallExpr");
+        }
+        return $obj;
     }
 
     public function exprNode(): void

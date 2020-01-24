@@ -55,7 +55,7 @@ final class AssignStmt implements StatementInterface
     public static function castAssignStmt(NodeInterface $obj): self
     {
         if (!($obj instanceof self)) {
-            throw new InvalidArgumentException("{$obj} is not instance of BinaryExpr");
+            throw new InvalidArgumentException("{$obj} is not instance of AssignStmt");
         }
         return $obj;
     }

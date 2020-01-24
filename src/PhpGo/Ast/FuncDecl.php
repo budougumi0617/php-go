@@ -33,7 +33,7 @@ final class FuncDecl implements DeclarationInterface
     public static function castFuncDecl(NodeInterface $obj): self
     {
         if (!($obj instanceof self)) {
-            throw new InvalidArgumentException("{$obj} is not instance of BinaryExpr");
+            throw new InvalidArgumentException("{$obj} is not instance of FuncDecl");
         }
         return $obj;
     }
