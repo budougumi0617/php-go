@@ -2,22 +2,32 @@
 
 namespace PhpGo\Object;
 
+use UnexpectedValueException;
+
 final class Scope
 {
     /** @var array<string,GoObject> */
     private array $store;
+    private self $outer;
 
-    public function __construct()
+    public function __construct(Scope $outer = null)
     {
         $this->store = [];
+        $this->outer = $outer;
     }
 
     public function get(string $name): GoObject
     {
-        if (!array_key_exists($name, $this->store)) {
-            throw new \UnexpectedValueException("{$name} is not exist");
+        $result = null;
+        if (array_key_exists($name, $this->store)) {
+            $result = $this[$name];
+        } else {    
+            $result = $this->outer->get($name);
         }
-        return $this->store[$name];
+        if (is_null($result)) {
+            throw new UnexpectedValueException("{$name} is not exist");
+        }
+        return $result;
     }
 
     public function set(string $name, GoObject $obj): GoObject
