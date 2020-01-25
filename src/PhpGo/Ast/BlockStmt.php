@@ -2,6 +2,8 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
+
 /**
  * Class BlockStmt
  * @package PhpGo\Ast
@@ -26,6 +28,14 @@ final class BlockStmt implements StatementInterface
         $this->lbrace = $lbrace;
         $this->list = $list;
         $this->rbrace = $rbrace;
+    }
+
+    public static function castBlockStmt(GoObject $obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of BlockStmt");
+        }
+        return $obj;
     }
 
     public function tokenLiteral(): string

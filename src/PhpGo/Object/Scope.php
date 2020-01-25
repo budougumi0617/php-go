@@ -21,7 +21,7 @@ final class Scope
         $result = null;
         if (array_key_exists($name, $this->store)) {
             $result = $this[$name];
-        } else {    
+        } else {
             $result = $this->outer->get($name);
         }
         if (is_null($result)) {

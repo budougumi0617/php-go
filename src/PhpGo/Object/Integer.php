@@ -3,7 +3,6 @@
 namespace PhpGo\Object;
 
 use InvalidArgumentException;
-use phpDocumentor\Reflection\Types\Self_;
 
 final class Integer implements GoObject
 {

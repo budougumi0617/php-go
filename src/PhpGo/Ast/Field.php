@@ -3,6 +3,7 @@
 
 namespace PhpGo\Ast;
 
+use InvalidArgumentException;
 
 final class Field implements NodeInterface
 {
@@ -18,4 +19,13 @@ final class Field implements NodeInterface
     {
         // TODO: Implement tokenLiteral() method.
     }
+
+    public static function castField($obj): self
+    {
+        if (!($obj instanceof self)) {
+            throw new InvalidArgumentException("{$obj} is not instance of FunctionObject");
+        }
+        return $obj;
+    }
+
 }
