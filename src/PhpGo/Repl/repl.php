@@ -12,6 +12,7 @@ const PROMPT = '>> ';
 function Start(): void
 {
     $rootScope = new Scope();
+    Evaluator::presetPrint($rootScope);
     while (true) {
         echo PROMPT;
         $line = trim(fgets(STDIN));

@@ -12,7 +12,6 @@ use InvalidArgumentException;
  */
 final class CallExpr implements ExpressionInterface
 {
-
     public ExpressionInterface $fun; // function expression
     public int $lparen; // position of "("
     /** @var array<ExpressionInterface>|null $args */

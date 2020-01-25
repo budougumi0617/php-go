@@ -10,10 +10,10 @@ use PhpGo\Ast\BlockStmt;
 use PhpGo\Ast\CallExpr;
 use PhpGo\Ast\ExpressionInterface;
 use PhpGo\Ast\Field;
-use PhpGo\Ast\FieldList;
 use PhpGo\Ast\FuncDecl;
 use PhpGo\Ast\Ident;
 use PhpGo\Ast\NodeInterface;
+use PhpGo\Ast\PrintlnExpr;
 use PhpGo\Ast\Program;
 use PhpGo\Object\FunctionObject;
 use PhpGo\Object\GoObject;
@@ -22,15 +22,30 @@ use PhpGo\Object\Nil;
 use PhpGo\Object\ObjectType;
 use PhpGo\Object\ReturnObj;
 use PhpGo\Object\Scope;
-use PhpGo\Token\DefineType;
-use PhpGo\Token\IntType;
-use PhpGo\Token\StringType;
-use PhpGo\Token\Token;
 use PhpGo\Token\TokenType;
 use UnexpectedValueException;
 
 final class Evaluator
 {
+
+    private static string $EMBEDDED_PRINTLN = 'println';
+
+    /**
+     * println(x)関数を登録する。
+     *
+     * @param Scope $root 関数を登録する空間
+     */
+    public static function presetPrint(Scope $root): void
+    {
+        $x = new Ident('x');
+        // FIXME: 可変長を受け付ける
+        $params = [$x];
+        $stmt = new BlockStmt(0, [
+            new PrintlnExpr($x->name),
+        ], 0);
+        $root->set(self::$EMBEDDED_PRINTLN, new FunctionObject($params, $stmt, $root));
+    }
+
     public static function eval(NodeInterface $node, Scope $scope): ?GoObject
     {
         // FIXME: if-elseはやめたい…
@@ -38,6 +53,11 @@ final class Evaluator
             // FIXME pkg scopeを渡せる
             $program = Program::castProgram($node);
             return self::evalStatements($program->statements, $scope);
+        } else if ($node instanceof PrintlnExpr) {
+            $pe = PrintlnExpr::castPrintlnExpr($node);
+            $val = $scope->get($pe->argName);
+            echo '(println)    ' . $val->inspect() . PHP_EOL;
+            return new Nil();
         } else if ($node instanceof BlockStmt) {
             $blockStmt = BlockStmt::castBlockStmt($node);
             return self::evalBlockStatement($blockStmt, $scope);
