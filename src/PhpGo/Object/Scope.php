@@ -8,7 +8,7 @@ final class Scope
 {
     /** @var array<string,GoObject> */
     private array $store;
-    private self $outer;
+    private ?self $outer;
 
     public function __construct(Scope $outer = null)
     {
@@ -20,8 +20,8 @@ final class Scope
     {
         $result = null;
         if (array_key_exists($name, $this->store)) {
-            $result = $this[$name];
-        } else {
+            $result = $this->store[$name];
+        } else if (!is_null($this->outer)) {
             $result = $this->outer->get($name);
         }
         if (is_null($result)) {

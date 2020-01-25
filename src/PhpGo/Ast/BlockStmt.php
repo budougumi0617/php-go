@@ -30,7 +30,7 @@ final class BlockStmt implements StatementInterface
         $this->rbrace = $rbrace;
     }
 
-    public static function castBlockStmt(GoObject $obj): self
+    public static function castBlockStmt(NodeInterface $obj): self
     {
         if (!($obj instanceof self)) {
             throw new InvalidArgumentException("{$obj} is not instance of BlockStmt");

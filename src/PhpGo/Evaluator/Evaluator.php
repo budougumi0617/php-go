@@ -79,22 +79,9 @@ final class Evaluator
                 $field = Field::castField($f);
                 // x, y int みたいな引数をパースしている。
                 foreach ($field->names as $name) {
-                    $tok = null;
+                    // FIXME: 型情報が落ちている
                     $ident = Ident::castIdent($name);
-                    // FIXME: 決め打ちで$field->typeをIdentとしている。
-                    switch ($field->type->name){
-                        case 'int':
-                            $tok = new Token(new IntType(), $ident->name);
-                            break;
-                        case 'stringe':
-                            $tok = new Token(new StringType(), $ident->name);
-                            break;
-                        default:
-                            throw  new \BadFunctionCallException(
-                                "cannot support argment type {$field->type->name}"
-                            );
-                    }
-                    $params[]=new BasicLit($tok);
+                    $params[] = $ident;
                 }
             }
             $funcObj = new FunctionObject($params, $func->body, $scope);
@@ -104,7 +91,7 @@ final class Evaluator
             return $funcObj;
         } else if ($node instanceof CallExpr) {
             $callExpr = CallExpr::castCallExpr($node);
-            $function = self::eval($callExpr, $scope);
+            $function = self::eval($callExpr->fun, $scope);
             $args = self::evalExpressions($callExpr->args, $scope);
             return self::applyFunction($function, $args);
         } else {
@@ -188,8 +175,8 @@ final class Evaluator
     {
         $exScope = new Scope($func->scope);
         foreach ($func->parameters as $i => $param) {
-            $lit = BasicLit::castBasicLit($param);
-            $exScope->set($lit->value, $args[$i]);
+            $ident = Ident::castIdent($param);
+            $exScope->set($ident->name, $args[$i]);
         }
         return $exScope;
     }
@@ -203,7 +190,7 @@ final class Evaluator
     private static function evalBlockStatement(BlockStmt $stmts, Scope $scope): GoObject
     {
         $result = new Nil();
-        foreach ($stmts as $stmt) {
+        foreach ($stmts->list as $stmt) {
             $result = self::eval($stmt, $scope);
             if (is_null($result) && $result->type()->getString() === ObjectType::RETURN_OBJ()->getString()) {
                 return $result;

@@ -11,6 +11,7 @@ use PhpGo\Token\EofType;
 use PhpGo\Token\SemicolonType;
 use function Repl\Start;
 
+// FIXME 評価機までできていない。
 if (count($argv) > 1) {
     $input = $argv[1];
     $lexer = new Lexer($input);

@@ -5,7 +5,7 @@ namespace PhpGo\Object;
 use InvalidArgumentException;
 use PhpGo\Ast\BasicLit;
 use PhpGo\Ast\BlockStmt;
-use PhpGo\Ast\FieldList;
+use PhpGo\Ast\ExpressionInterface;
 
 final class FunctionObject implements GoObject
 {
@@ -19,7 +19,7 @@ final class FunctionObject implements GoObject
      *
      * Ref: https://golang.org/pkg/go/ast/#FieldList
      *
-     * @param array<BasicLit> $parameters
+     * @param array<ExpressionInterface> $parameters
      * @param BlockStmt       $body
      * @param Scope           $scope
      */
