@@ -64,6 +64,11 @@ func main(){
 }
 EOT;
         return [
+            'demo' => ['10+15', [
+                new Token(new IntType(), "10"),
+                new Token(new AddType(), ""),
+                new Token(new IntType(), "15"),
+            ]],
             'simple' => ['=+(){},;', [
                 new Token(new AssignType(), ""),
                 new Token(new AddType(), ""),
